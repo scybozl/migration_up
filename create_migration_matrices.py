@@ -27,13 +27,77 @@ import os
 timestr = strftime("%d-%m-%y--%H.%M.%S", gmtime())
 
 outputMigr = "migration_matrices_"+timestr
+outputHists= "histograms_"+timestr
 outputEff  = "efficiencies_"+timestr
 outputFacc = "fake_hits_rates_"+timestr
 
+def ratioPlot(firstHist,secondHist,title):
+  hist1 = firstHist.Clone("hist1")
+  hist2 = secondHist.Clone("hist2")
+  c2 = TCanvas("c2","c2",800,800)
+  pad1 = TPad("pad1","pad1", 0, 0.3, 1, 1.0)
+  pad1.SetBottomMargin(0) # Upper and lower plot are joined
+  pad1.SetGridx()         # Vertical grid
+  pad1.Draw()             # Draw the upper pad: pad1
+  pad1.cd()               # pad1 becomes the current pad
+  hist1.SetStats(0)       # No statistics on upper plot
+  hist1.Draw()            # Draw hist1
+  hist2.Draw("same")      # Draw hist2
+  # lower plot will be in pad
+  c2.cd()          # Go back to the main canvas before defining pad2
+  pad2 = TPad("pad2", "pad2", 0, 0.05, 1, 0.3)
+  pad2.SetTopMargin(0.1)
+  pad2.SetBottomMargin(0.2)
+  pad2.SetGridx() # vertical grid
+  pad2.Draw()
+  pad2.cd()       # pad2 becomes the current pad
 
-def populateHists(reco, obsR, part, obsP):
+  # Define the ratio plot
+  h3 = hist1.Clone("h3")
+  h3.SetLineColor(kBlack)
+  h3.SetMinimum(0.0)  # Define Y ..
+  h3.SetMaximum(3.0) # .. range
+  h3.Sumw2()
+  h3.SetStats(0)      # No statistics on lower plot
+  h3.Divide(hist2)
+  h3.SetMarkerStyle(21)
+  h3.Draw("ep")       # Draw the ratio plot
+
+  hist1.SetTitle("")
+  hist1.SetLineColor(kBlue+1)
+  hist1.SetLineWidth(2)
+
+  hist1.GetYaxis().SetTitle("N_{events}")
+  hist1.GetYaxis().SetTitleSize(20)
+  hist1.GetYaxis().SetTitleFont(43)
+  hist1.GetYaxis().SetTitleOffset(1.55)
+  hist1.GetXaxis().SetTitleSize(0)
+  hist1.GetXaxis().SetLabelSize(0)
+
+  hist2.SetLineColor(kRed)
+  hist2.SetLineWidth(2)
+
+  h3.SetTitle("")
+
+  h3.GetYaxis().SetTitle("Ratio "+firstHist.GetTitle()+"/"+secondHist.GetTitle())
+  h3.GetYaxis().SetNdivisions(505)
+  h3.GetYaxis().SetTitleSize(20)
+  h3.GetYaxis().SetTitleFont(43)
+  h3.GetYaxis().SetTitleOffset(1.55)
+  h3.GetYaxis().SetLabelFont(43) # Absolute font size in pixel (precision 3)
+  h3.GetYaxis().SetLabelSize(25)
+
+  h3.GetXaxis().SetTitle(firstHist.GetTitle().split("^{part}")[0])
+  h3.GetXaxis().SetTitleSize(25)
+  h3.GetXaxis().SetTitleFont(43)
+  h3.GetXaxis().SetLabelFont(43) # Absolute font size in pixel (precision 3)
+  h3.GetXaxis().SetLabelSize(25)
+
+  c2.SaveAs(title)
+  c2.Close()
+
+def populateHistsUp(reco, obsR, part, obsP):
   global recoOnly
-  global partOnly
   for i in range(reco.GetEntries()):
     if ((i+1) % 1000) == 0: print "Processing event number " + str(i+1) + "..."
     reco.GetEntry(i)
@@ -42,18 +106,26 @@ def populateHists(reco, obsR, part, obsP):
 	recoHists[j].Fill(getattr(obsR,y))
     # Check if the event only exists at reco level
     if part.GetEntryWithIndex(obsR.runNumber, obsR.eventNumber) < 0: recoOnly += 1
-    # If not, it was matched -> fill out the migration matrices
+    # If not, it was matched . fill out the migration matrices
     else:
 	# Fill the reco/particle histograms, and the migration matrices
 	for j,obs in enumerate(observables): 
 	  x = obs[1] + "_part"
 	  y = obs[1] + "_reco"
-	  print i
-	  print getattr(obsP,x)
-	  print getattr(obsR,y)
 	  effHists[j].Fill(getattr(obsP,x))
 	  faccHists[j].Fill(getattr(obsR,y))
 	  migrationMatrices[j].Fill(getattr(obsP,x), getattr(obsR,y))
+
+def populateHistsDown(reco, obsR, part, obsP):
+  global partOnly
+  for i in range(part.GetEntries()):
+    if ((i+1) % 1000) == 0: print "Processing event number " + str(i+1) + "..."
+    part.GetEntry(i)
+    for j,obs in enumerate(observables):
+        x = obs[1] + "_part"
+        partHists[j].Fill(getattr(obsP,x))
+    if reco.GetEntryWithIndex(obsP.runNumber, obsP.eventNumber) < 0: partOnly += 1
+
 
 def normalize():
   for i,obs in enumerate(observables):
@@ -65,7 +137,7 @@ def normalize():
 	  if sum != 0: migrationMatrices[i].SetBinContent(xbins, ybins,
 			migrationMatrices[i].GetBinContent(xbins, ybins) / float(sum))
 
-def drawHists():
+def drawMigrationMatrices():
   os.system("mkdir " + outputMigr)
   c = TCanvas("c","c",900,900)
   c.cd()
@@ -74,14 +146,20 @@ def drawHists():
     migrationMatrices[i].GetYaxis().SetTitle(obs[5] + "^{reco}")
     migrationMatrices[i].Draw("COLZ")
     c.SaveAs(outputMigr + "/migration_" + obs[1] + ".pdf")
+    migrationMatrices[i].Draw("LEGO2Z")
+    c.SaveAs(outputMigr + "/migration_" + obs[1] + "_lego.pdf")
 
-
+def drawHists():
+  os.system("mkdir " + outputHists)
+  for i,obs in enumerate(observables):
+    ratioPlot(partHists[i], recoHists[i], outputHists + "/" + obs[1] + ".pdf")
 
 recoOnly = 0
 partOnly = 0
 
 # List of observables from which to build migration matrices
-observables = [["Double_t", "mlb_minavg", 20, 0, 350e+03, "m_{lb}"]]
+observables = [	["Double_t",	"mlb_minavg", 20, 0, 350e+03, "m_{lb}"],
+		["Int_t",	"nbjets", 8, 0, 8, "n_{b,jets}"]]
 
 # Declare migration matrices, reco/part. histograms, eff. & fake hits
 migrationMatrices = []
@@ -99,11 +177,12 @@ for obs in observables:
   nBins = obs[2]
   xMin = obs[3]
   xMax = obs[4]
-  migrationMatrices.append( TH2F(mig, "", nBins, xMin, xMax, nBins, xMin, xMax ) )
-  partHists.append( TH1F(histP, "", nBins, xMin, xMax ) )
-  recoHists.append( TH1F(histR, "", nBins, xMin, xMax ) )
-  effHists.append( TH1F(eff, "", nBins, xMin, xMax ) )
-  faccHists.append( TH1F(facc, "", nBins, xMin, xMax ) )
+  obsName = obs[5]
+  migrationMatrices.append( TH2F(mig, "A_ij "+obsName, nBins, xMin, xMax, nBins, xMin, xMax ) )
+  partHists.append( TH1F(histP, obsName+"^{part}", nBins, xMin, xMax ) )
+  recoHists.append( TH1F(histR, obsName+"^{reco}", nBins, xMin, xMax ) )
+  effHists.append( TH1F(eff, "e_{eff} "+obsName, nBins, xMin, xMax ) )
+  faccHists.append( TH1F(facc, "f_{acc} "+obsName, nBins, xMin, xMax ) )
 
 myFile = TFile.Open("output_172.5_120K_AF2.root")
 
@@ -145,8 +224,24 @@ for obs in observables:
   recoLevel.SetBranchAddress('tma_'+obs[1], AddressOf(nominal,obs[1]+'_reco'))
   partLevel.SetBranchAddress('tma_'+obs[1], AddressOf(particleLevel,obs[1]+'_part'))
 
-# Loop through the events & fill the histograms
+# Loop through the events at reco level & fill the histograms
 
-populateHists(recoLevel, nominal, partLevel, particleLevel)
-normalize()
+populateHistsUp(recoLevel, nominal, partLevel, particleLevel)  # First migration matrices, effs, fakes
+normalize()	# Then normalize every column there to 1
+drawMigrationMatrices()	# Save them as pdfs
+
+# Loop through the particle level this time
+
+recoLevel.ResetBranchAddresses()
+partLevel.SetBranchAddress("runNumber", AddressOf(particleLevel,'runNumber'))
+partLevel.SetBranchAddress("eventNumber", AddressOf(particleLevel,'eventNumber'))
+
+populateHistsDown(recoLevel, nominal, partLevel, particleLevel)
+partLevel.ResetBranchAddresses()
+
+# Draw the particle/reco level histograms in ratio plots
+
 drawHists()
+
+
+
