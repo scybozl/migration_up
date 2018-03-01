@@ -148,11 +148,37 @@ def drawMigrationMatrices():
     c.SaveAs(outputMigr + "/migration_" + obs[1] + ".pdf")
     migrationMatrices[i].Draw("LEGO2Z")
     c.SaveAs(outputMigr + "/migration_" + obs[1] + "_lego.pdf")
+  c.Close()
+
+def efficiencies():
+  os.system("mkdir " + outputEff)
+  c = TCanvas("c","c",900,900)
+  c.cd()
+  for i,obs in enumerate(observables):
+    effHists[i].Divide(partHists[i])
+    effHists[i].GetXaxis().SetTitle(obs[5])
+    effHists[i].GetYaxis().SetTitle("\epsilon_{eff} " + obs[5])
+    effHists[i].Draw()
+    c.SaveAs(outputEff + "/efficiency_" + obs[1] + ".pdf")
+  c.Close()
+
+def fakeHits():
+  os.system("mkdir " + outputFacc)
+  c = TCanvas("c","c",900,900)
+  c.cd()
+  for i,obs in enumerate(observables):
+    faccHists[i].Divide(recoHists[i])
+    faccHists[i].GetXaxis().SetTitle(obs[5])
+    faccHists[i].GetYaxis().SetTitle("f_{acc} " + obs[5])
+    faccHists[i].Draw()
+    c.SaveAs(outputFacc + "/fake_hits_rate_" + obs[1] + ".pdf")
+  c.Close()
 
 def drawHists():
   os.system("mkdir " + outputHists)
   for i,obs in enumerate(observables):
     ratioPlot(partHists[i], recoHists[i], outputHists + "/" + obs[1] + ".pdf")
+
 
 recoOnly = 0
 partOnly = 0
@@ -181,7 +207,7 @@ for obs in observables:
   migrationMatrices.append( TH2F(mig, "A_ij "+obsName, nBins, xMin, xMax, nBins, xMin, xMax ) )
   partHists.append( TH1F(histP, obsName+"^{part}", nBins, xMin, xMax ) )
   recoHists.append( TH1F(histR, obsName+"^{reco}", nBins, xMin, xMax ) )
-  effHists.append( TH1F(eff, "e_{eff} "+obsName, nBins, xMin, xMax ) )
+  effHists.append( TH1F(eff, "\epsilon_{eff} "+obsName, nBins, xMin, xMax ) )
   faccHists.append( TH1F(facc, "f_{acc} "+obsName, nBins, xMin, xMax ) )
 
 myFile = TFile.Open("output_172.5_120K_AF2.root")
@@ -243,5 +269,9 @@ partLevel.ResetBranchAddresses()
 
 drawHists()
 
+# Compute the efficiencies / fake hit rates and draw them
+
+efficiencies()
+fakeHits()
 
 
