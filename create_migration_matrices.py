@@ -22,14 +22,17 @@
 
 from time import gmtime, strftime
 from ROOT import *
-import os
+import os, sys
 
 timestr = strftime("%d-%m-%y--%H.%M.%S", gmtime())
+
+inputfile = sys.argv[1]
 
 outputMigr = "migration_matrices_"+timestr
 outputHists= "histograms_"+timestr
 outputEff  = "efficiencies_"+timestr
 outputFacc = "fake_hits_rates_"+timestr
+outputClos = "closure_tests_"+timestr
 
 def ratioPlot(firstHist,secondHist,title):
   hist1 = firstHist.Clone("hist1")
@@ -40,7 +43,7 @@ def ratioPlot(firstHist,secondHist,title):
   pad1.SetGridx()         # Vertical grid
   pad1.Draw()             # Draw the upper pad: pad1
   pad1.cd()               # pad1 becomes the current pad
-  hist1.SetStats(0)       # No statistics on upper plot
+#  hist1.SetStats(0)       # No statistics on upper plot
   hist1.Draw()            # Draw hist1
   hist2.Draw("same")      # Draw hist2
   # lower plot will be in pad
@@ -88,6 +91,7 @@ def ratioPlot(firstHist,secondHist,title):
   h3.GetYaxis().SetLabelSize(25)
 
   h3.GetXaxis().SetTitle(firstHist.GetTitle().split("^{part}")[0])
+  h3.GetXaxis().SetTitleOffset(1.55)
   h3.GetXaxis().SetTitleSize(25)
   h3.GetXaxis().SetTitleFont(43)
   h3.GetXaxis().SetLabelFont(43) # Absolute font size in pixel (precision 3)
@@ -186,13 +190,13 @@ def efficiencies():
     effHists[i].Divide(partHists[i])
     effHists[i].GetXaxis().SetTitle(obs[5])
     effHists[i].GetYaxis().SetTitle("\epsilon_{eff} " + obs[5])
-    effHists[i].Draw()
+    effHists[i].Draw("P")
     c.SaveAs(outputEff + "/efficiency_" + obs[1] + ".pdf")
   for i,vec in enumerate(vectors):
     effHists[shift+i].Divide(partHists[shift+i])
     effHists[shift+i].GetXaxis().SetTitle(vec[5])
     effHists[shift+i].GetYaxis().SetTitle("\epsilon_{eff} lead. " + vec[5])
-    effHists[shift+i].Draw()
+    effHists[shift+i].Draw("P")
     c.SaveAs(outputEff + "/efficiency_" + vec[1] + "1.pdf")
   c.Close()
 
@@ -204,13 +208,13 @@ def fakeHits():
     faccHists[i].Divide(recoHists[i])
     faccHists[i].GetXaxis().SetTitle(obs[5])
     faccHists[i].GetYaxis().SetTitle("f_{acc} " + obs[5])
-    faccHists[i].Draw()
+    faccHists[i].Draw("P")
     c.SaveAs(outputFacc + "/fake_hits_rate_" + obs[1] + ".pdf")
   for i,vec in enumerate(vectors):
     faccHists[shift+i].Divide(recoHists[shift+i])
     faccHists[shift+i].GetXaxis().SetTitle(vec[5])
     faccHists[shift+i].GetYaxis().SetTitle("f_{acc} lead. " + vec[5])
-    faccHists[shift+i].Draw()
+    faccHists[shift+i].Draw("P")
     c.SaveAs(outputFacc + "/fake_hits_rate_" + vec[1] + "1.pdf")
   c.Close()
 
@@ -221,6 +225,25 @@ def drawHists():
   for i,vec in enumerate(vectors):
     ratioPlot(partHists[shift+i], recoHists[shift+i], outputHists + "/" + vec[1] + "1.pdf")
 
+def closureTests():
+  os.system("mkdir " + outputClos)
+  for i,obs in enumerate(observables):
+    for xbins in range(obs[2]):
+    sum = 0.
+    for j in range(obs[2]): sum += migrationMatrices[i].GetBinContent(j,xbins) * partHists[i].GetBinContent(j)
+			* effHists[i].GetBinContent(j)
+    if faccHists[i].GetBinContent(xbins) != 0: sum *= 1./(faccHists[i].GetBinContent(xbins))
+    recoFolded[i].SetBinContent(xbins, sum)
+    ratioPlot(recoHists[i], recoFolded[i], outputClos + "/" + obs[1] + ".pdf")
+  for i,vec in enumerate(vectors):
+    for xbins in range(vec[2]):
+    sum = 0.
+    for j in range(vec[2]): sum += migrationMatrices[shift+i].GetBinContent(j,xbins) * partHists[shift+i].GetBinContent(j)
+			* effHists[shift+i].GetBinContent(j)
+    if faccHists[shift+i].GetBinContent(xbins) != 0: sum *= 1./(faccHists[shift+i].GetBinContent(xbins))
+    recoFolded[shift+i].SetBinContent(xbins, sum)
+    ratioPlot(recoHists[shift+i], recoFolded[shift+i], outputClos + "/" + vec[1] + ".pdf")
+    
 
 recoOnly = 0
 partOnly = 0
@@ -229,11 +252,84 @@ partOnly = 0
 observables = [
 		["Int_t",	"nbjets", 8, 0, 8, "n_{b,jets}"],
 		["Int_t",	"njets", 15, 0, 15, "n_{jets}"],
-		["Double_t",	"mlb_minavg", 20, 0, 350e+03, "m_{lb}"]
+		["Double_t",    "etdr", 20, 0, 400e+03, "n_{jets}"],
+                ["Double_t",    "met", 20, 0, 1100e+03, "n_{jets}"],
+                ["Double_t",    "met_ex", 20, -1000e+03, 1000e+03, "n_{jets}"],
+                ["Double_t",    "met_ey", 20, -1000e+03, 1000e+03, "n_{jets}"],
+                ["Double_t",    "met_phi", 20, -3.1416, 3.1416, "n_{jets}"],
+                ["Double_t",    "mlb_minavg", 20, 0, 400e+03, "m_{lb}"],
+                ["Double_t",    "mlb_minavglow", 20, 0, 300e+03, "m_{lb}"],
+                ["Double_t",    "mlb_minavghigh", 20, 0, 700e+03, "m_{lb}"],
+                ["Double_t",    "mlb_minmax", 20, 0, 700e+03, "m_{lb}"],
+                ["Double_t",    "mlb_minmaxlow", 20, 0, 300e+03, "m_{lb}"],
+#                ["Double_t",    "mlb_minmaxhigh", 20, 0, 300e+03, "m_{lb}"],
+                ["Double_t",    "pTlb_1", 20, 0, 600e+03, "m_{lb}"],
+                ["Double_t",    "pTlb_2", 20, 0, 500e+03, "m_{lb}"],
+                ["Double_t",    "dRlb_1", 20, 0, 6, "m_{lb}"],
+                ["Double_t",    "dRlb_2", 20, 0, 6, "m_{lb}"],
+                ["Double_t",    "mll", 20, 0, 900e+03, "m_{lb}"],
+                ["Double_t",    "pTll", 20, 0, 500e+03, "m_{lb}"],
+                ["Double_t",    "dRll", 20, 0, 6, "m_{lb}"],
+                ["Double_t",    "mbb", 20, 0, 2300e+03, "m_{lb}"],
+                ["Double_t",    "pTbb", 20, 0, 900e+03, "m_{lb}"],
+                ["Double_t",    "dRbb", 20, 0, 6, "m_{lb}"],
+                ["float",    "top_pt", 20, 0, 900e+03, "m_{lb}"],
+                ["float",    "top_eta", 20, -5, 5, "m_{lb}"],
+                ["float",    "top_phi", 20, -3.1416, 3.1416, "m_{lb}"],
+                ["float",    "top_m", 20, 0, 500e+03, "m_{lb}"],
+                ["float",    "top_e", 20, 0, 4100e+03, "m_{lb}"],
+                ["float",    "top_y", 20, -2.9, 2.9, "m_{lb}"],
+ #               ["float",    "top_ratio", 20, 0, 1, "m_{lb}"],
+                ["float",    "tbar_pt", 20, 0, 900e+03, "m_{lb}"],
+                ["float",    "tbar_eta", 20, -5, 5, "m_{lb}"],
+                ["float",    "tbar_phi", 20, -3.1416, 3.1416, "m_{lb}"],
+                ["float",    "tbar_m", 20, 0, 600e+03, "m_{lb}"],
+                ["float",    "tbar_e", 20, 0, 2700e+03, "m_{lb}"],
+                ["float",    "tbar_y", 20, -2.9, 2.9, "m_{lb}"],
+ #               ["float",    "tbar_ratio", 20, 0, 1, "m_{lb}"],
+                ["float",    "av_top_pt", 20, 0, 900e+03, "m_{lb}"],
+                ["float",    "av_top_eta", 20, -5, 5, "m_{lb}"],
+                ["float",    "av_top_phi", 20, -3.1416, 3.1416, "m_{lb}"],
+                ["float",    "av_top_m", 20, 0, 500e+03, "m_{lb}"],
+                ["float",    "av_top_e", 20, 0, 2400e+03, "m_{lb}"],
+                ["float",    "av_top_y", 20, -2.9, 2.9, "m_{lb}"],
+                ["float",    "ttbar_pt", 20, 0, 900e+03, "m_{lb}"],
+                ["float",    "ttbar_eta", 20, -10, 10, "m_{lb}"],
+                ["float",    "ttbar_phi", 20, -3.1416, 3.1416, "m_{lb}"],
+                ["float",    "ttbar_m", 20, 0, 2500e+03, "m_{lb}"],
+                ["float",    "ttbar_e", 20, 0, 4700e+03, "m_{lb}"],
+                ["float",    "ttbar_y", 20, -2.9, 2.9, "m_{lb}"], 
+                ["float",    "ttbar_pout", 20, -700e+03, 700e+03, "m_{lb}"],
+                ["float",    "nu_pt", 20, 0, 600e+03, "m_{lb}"], 
+                ["float",    "nu_eta", 20, -10, 10, "m_{lb}"],
+                ["float",    "nu_phi", 20, -3.1416, 3.1416, "m_{lb}"],
+                ["float",    "nu_m", 20, -0.2e+03, 0.2e+03, "m_{lb}"],
+                ["float",    "nu_e", 20, 0, 3500e+03, "m_{lb}"],
+                ["float",    "nu_y", 20, -2.9, 2.9, "m_{lb}"],
+                ["float",    "nubar_pt", 20, 0, 600e+03, "m_{lb}"],
+                ["float",    "nubar_eta", 20, -10, 10, "m_{lb}"],
+                ["float",    "nubar_phi", 20, -3.1416, 3.1416, "m_{lb}"],
+                ["float",    "nubar_m", 20, -0.5e+03, 0.5e+03, "m_{lb}"],
+                ["float",    "nubar_e", 20, 0, 1800e+03, "m_{lb}"],
+                ["float",    "nubar_y", 20, -2.9, 2.9, "m_{lb}"],
+                ["float",    "Wp_pt", 20, 0, 800e+03, "m_{lb}"],
+                ["float",    "Wp_eta", 20, -10, 10, "m_{lb}"],
+                ["float",    "Wp_phi", 20, -3.1416, 3.1416, "m_{lb}"],
+                ["float",    "Wp_m", 20, 0, 1000e+03, "m_{lb}"],
+                ["float",    "Wp_e", 20, 0, 3600e+03, "m_{lb}"],
+                ["float",    "Wp_y", 20, -2.9, 2.9, "m_{lb}"], 
+                ["float",    "Wm_pt", 20, 0, 800e+03, "m_{lb}"],
+                ["float",    "Wm_eta", 20, -10, 10, "m_{lb}"],
+                ["float",    "Wm_phi", 20, -3.1416, 3.1416, "m_{lb}"],
+                ["float",    "Wm_m", 20, 0, 1000e+03, "m_{lb}"],
+                ["float",    "Wm_e", 20, 0, 1900e+03, "m_{lb}"],
+                ["float",    "Wm_y", 20, -2.9, 2.9, "m_{lb}"]
+#                ["Int_t",       "nu_n", 20, 0, 100e+03, "m_{lb}"]
 		]
 
 vectors = [
-		["double",	"bjet_pt", 100, 0, 990e+03, "b_{jet} p_T"]
+		["double",	"bjet_pt", 100, 0, 990e+03, "b_{jet} p_{T}"],
+		["double",	"el_pt", 100, 0, 990e+03, "Electron p_{T}"]
 		]
 
 # Declare migration matrices, reco/part. histograms, eff. & fake hits
@@ -278,12 +374,15 @@ for vec in vectors:
 shift = len(observables)
 
 recoLevel = TChain("nominal")
-recoLevel.Add("output_172.5_120K_AF2.root")
-recoLevel.Add("output_170.0_120K.root")
-
 partLevel = TChain("particleLevel")
-partLevel.Add("output_172.5_120K_AF2.root")
-partLevel.Add("output_170.0_120K.root")
+
+fileh = open(inputfile, 'r')
+for sample in fileh:
+  filename = sample.split("\n")[0]
+  print "Adding " + filename + " to the samples list..."
+  recoLevel.Add(filename)
+  partLevel.Add(filename)
+fileh.close()
 
 #myFile = TFile.Open("output_172.5_120K_AF2.root")
 
@@ -334,8 +433,12 @@ for obs in observables:
   partLevel.SetBranchAddress('tma_'+obs[1], AddressOf(particleLevel,obs[1]+'_part'))
 
 for vec in vectors:
-  recoLevel.SetBranchAddress('tma_'+vec[1], AddressOf(globals()[vec[1]+'_reco']))
-  partLevel.SetBranchAddress('tma_'+vec[1], AddressOf(globals()[vec[1]+'_part']))
+  if vec[1].find("el_") == -1 and vec[1].find("mu_") == -1:
+    recoLevel.SetBranchAddress('tma_'+vec[1], AddressOf(globals()[vec[1]+'_reco']))
+    partLevel.SetBranchAddress('tma_'+vec[1], AddressOf(globals()[vec[1]+'_part']))
+  else:
+    recoLevel.SetBranchAddress(vec[1], AddressOf(globals()[vec[1]+'_reco']))
+    partLevel.SetBranchAddress(vec[1], AddressOf(globals()[vec[1]+'_part']))
   
 
 # Loop through the events at reco level & fill the histograms
@@ -362,5 +465,24 @@ drawHists()
 efficiencies()
 fakeHits()
 
+# Do closure tests to check if the computed folding to reco-level works properly
 
+recoFolded = []
+for obs in observables:
+  name = "tRecoFolded_" + obs[1]
+  nBins = obs[2]
+  xMin = obs[3]
+  xMax = obs[4]
+  obsName = obs[5]
+  recoFolded.append( TH1F(name, obsName+"^{reco} folded.", nBins, xMin, xMax ) )
+
+for vec in vectors:
+  name = "tRecoFolded_lead_" + vec[1]
+  nBins = vec[2]
+  xMin = vec[3]
+  xMax = vec[4]
+  obsName = vec[5]
+  recoFolded.append( TH1F(name, obsName+"^{reco} folded.", nBins, xMin, xMax ) )
+
+closureTests()
 
