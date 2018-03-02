@@ -229,19 +229,19 @@ def closureTests():
   os.system("mkdir " + outputClos)
   for i,obs in enumerate(observables):
     for xbins in range(obs[2]):
-    sum = 0.
-    for j in range(obs[2]): sum += migrationMatrices[i].GetBinContent(j,xbins) * partHists[i].GetBinContent(j)
+	sum = 0.
+	for j in range(obs[2]): sum += migrationMatrices[i].GetBinContent(j,xbins) * partHists[i].GetBinContent(j) \
 			* effHists[i].GetBinContent(j)
-    if faccHists[i].GetBinContent(xbins) != 0: sum *= 1./(faccHists[i].GetBinContent(xbins))
-    recoFolded[i].SetBinContent(xbins, sum)
+	if faccHists[i].GetBinContent(xbins) != 0: sum *= 1./(faccHists[i].GetBinContent(xbins))
+	recoFolded[i].SetBinContent(xbins, sum)
     ratioPlot(recoHists[i], recoFolded[i], outputClos + "/" + obs[1] + ".pdf")
   for i,vec in enumerate(vectors):
     for xbins in range(vec[2]):
-    sum = 0.
-    for j in range(vec[2]): sum += migrationMatrices[shift+i].GetBinContent(j,xbins) * partHists[shift+i].GetBinContent(j)
+	sum = 0.
+	for j in range(vec[2]): sum += migrationMatrices[shift+i].GetBinContent(j,xbins) * partHists[shift+i].GetBinContent(j) \
 			* effHists[shift+i].GetBinContent(j)
-    if faccHists[shift+i].GetBinContent(xbins) != 0: sum *= 1./(faccHists[shift+i].GetBinContent(xbins))
-    recoFolded[shift+i].SetBinContent(xbins, sum)
+	if faccHists[shift+i].GetBinContent(xbins) != 0: sum *= 1./(faccHists[shift+i].GetBinContent(xbins))
+	recoFolded[shift+i].SetBinContent(xbins, sum)
     ratioPlot(recoHists[shift+i], recoFolded[shift+i], outputClos + "/" + vec[1] + ".pdf")
     
 
@@ -252,78 +252,78 @@ partOnly = 0
 observables = [
 		["Int_t",	"nbjets", 8, 0, 8, "n_{b,jets}"],
 		["Int_t",	"njets", 15, 0, 15, "n_{jets}"],
-		["Double_t",    "etdr", 20, 0, 400e+03, "n_{jets}"],
-                ["Double_t",    "met", 20, 0, 1100e+03, "n_{jets}"],
-                ["Double_t",    "met_ex", 20, -1000e+03, 1000e+03, "n_{jets}"],
-                ["Double_t",    "met_ey", 20, -1000e+03, 1000e+03, "n_{jets}"],
-                ["Double_t",    "met_phi", 20, -3.1416, 3.1416, "n_{jets}"],
+		["Double_t",    "etdr", 20, 0, 400e+03, "E_{T}\DeltaR"],
+                ["Double_t",    "met", 20, 0, 1100e+03, "Missing E_{T}"],
+                ["Double_t",    "met_ex", 20, -1000e+03, 1000e+03, "MET E_{x}"],
+                ["Double_t",    "met_ey", 20, -1000e+03, 1000e+03, "MET E_{y}"],
+                ["Double_t",    "met_phi", 20, -3.1416, 3.1416, "MET \phi"],
                 ["Double_t",    "mlb_minavg", 20, 0, 400e+03, "m_{lb}"],
                 ["Double_t",    "mlb_minavglow", 20, 0, 300e+03, "m_{lb}"],
                 ["Double_t",    "mlb_minavghigh", 20, 0, 700e+03, "m_{lb}"],
                 ["Double_t",    "mlb_minmax", 20, 0, 700e+03, "m_{lb}"],
                 ["Double_t",    "mlb_minmaxlow", 20, 0, 300e+03, "m_{lb}"],
 #                ["Double_t",    "mlb_minmaxhigh", 20, 0, 300e+03, "m_{lb}"],
-                ["Double_t",    "pTlb_1", 20, 0, 600e+03, "m_{lb}"],
-                ["Double_t",    "pTlb_2", 20, 0, 500e+03, "m_{lb}"],
-                ["Double_t",    "dRlb_1", 20, 0, 6, "m_{lb}"],
-                ["Double_t",    "dRlb_2", 20, 0, 6, "m_{lb}"],
-                ["Double_t",    "mll", 20, 0, 900e+03, "m_{lb}"],
-                ["Double_t",    "pTll", 20, 0, 500e+03, "m_{lb}"],
-                ["Double_t",    "dRll", 20, 0, 6, "m_{lb}"],
-                ["Double_t",    "mbb", 20, 0, 2300e+03, "m_{lb}"],
-                ["Double_t",    "pTbb", 20, 0, 900e+03, "m_{lb}"],
-                ["Double_t",    "dRbb", 20, 0, 6, "m_{lb}"],
-                ["float",    "top_pt", 20, 0, 900e+03, "m_{lb}"],
-                ["float",    "top_eta", 20, -5, 5, "m_{lb}"],
-                ["float",    "top_phi", 20, -3.1416, 3.1416, "m_{lb}"],
-                ["float",    "top_m", 20, 0, 500e+03, "m_{lb}"],
-                ["float",    "top_e", 20, 0, 4100e+03, "m_{lb}"],
-                ["float",    "top_y", 20, -2.9, 2.9, "m_{lb}"],
+                ["Double_t",    "pTlb_1", 20, 0, 600e+03, "p_{T,lb}_{1}"],
+                ["Double_t",    "pTlb_2", 20, 0, 500e+03, "p_{T,lb}_{2}"],
+                ["Double_t",    "dRlb_1", 20, 0, 6, "\DeltaR_{lb}_{1}"],
+                ["Double_t",    "dRlb_2", 20, 0, 6, "\DeltaR_{lb}_{2}"],
+                ["Double_t",    "mll", 20, 0, 900e+03, "m_{ll}"],
+                ["Double_t",    "pTll", 20, 0, 500e+03, "p_{T,ll}"],
+                ["Double_t",    "dRll", 20, 0, 6, "\DeltaR_{ll}"],
+                ["Double_t",    "mbb", 20, 0, 2300e+03, "m_{bb}"],
+                ["Double_t",    "pTbb", 20, 0, 900e+03, "p_{T,bb}"],
+                ["Double_t",    "dRbb", 20, 0, 6, "\DeltaR_{bb}"],
+                ["float",    "top_pt", 20, 0, 900e+03, "Top p_{T}"],
+                ["float",    "top_eta", 20, -5, 5, "Top \eta"],
+                ["float",    "top_phi", 20, -3.1416, 3.1416, "Top \phi"],
+                ["float",    "top_m", 20, 0, 500e+03, "Top m"],
+                ["float",    "top_e", 20, 0, 4100e+03, "Top E"],
+                ["float",    "top_y", 20, -2.9, 2.9, "Top y"],
  #               ["float",    "top_ratio", 20, 0, 1, "m_{lb}"],
-                ["float",    "tbar_pt", 20, 0, 900e+03, "m_{lb}"],
-                ["float",    "tbar_eta", 20, -5, 5, "m_{lb}"],
-                ["float",    "tbar_phi", 20, -3.1416, 3.1416, "m_{lb}"],
-                ["float",    "tbar_m", 20, 0, 600e+03, "m_{lb}"],
-                ["float",    "tbar_e", 20, 0, 2700e+03, "m_{lb}"],
-                ["float",    "tbar_y", 20, -2.9, 2.9, "m_{lb}"],
+                ["float",    "tbar_pt", 20, 0, 900e+03, "Tbar p_{T}"],
+                ["float",    "tbar_eta", 20, -5, 5, "Tbar \eta"],
+                ["float",    "tbar_phi", 20, -3.1416, 3.1416, "Tbar \phi"],
+                ["float",    "tbar_m", 20, 0, 600e+03, "Tbar m"],
+                ["float",    "tbar_e", 20, 0, 2700e+03, "Tbar E"],
+                ["float",    "tbar_y", 20, -2.9, 2.9, "Tbar y"],
  #               ["float",    "tbar_ratio", 20, 0, 1, "m_{lb}"],
-                ["float",    "av_top_pt", 20, 0, 900e+03, "m_{lb}"],
-                ["float",    "av_top_eta", 20, -5, 5, "m_{lb}"],
-                ["float",    "av_top_phi", 20, -3.1416, 3.1416, "m_{lb}"],
-                ["float",    "av_top_m", 20, 0, 500e+03, "m_{lb}"],
-                ["float",    "av_top_e", 20, 0, 2400e+03, "m_{lb}"],
-                ["float",    "av_top_y", 20, -2.9, 2.9, "m_{lb}"],
-                ["float",    "ttbar_pt", 20, 0, 900e+03, "m_{lb}"],
-                ["float",    "ttbar_eta", 20, -10, 10, "m_{lb}"],
-                ["float",    "ttbar_phi", 20, -3.1416, 3.1416, "m_{lb}"],
-                ["float",    "ttbar_m", 20, 0, 2500e+03, "m_{lb}"],
-                ["float",    "ttbar_e", 20, 0, 4700e+03, "m_{lb}"],
-                ["float",    "ttbar_y", 20, -2.9, 2.9, "m_{lb}"], 
-                ["float",    "ttbar_pout", 20, -700e+03, 700e+03, "m_{lb}"],
-                ["float",    "nu_pt", 20, 0, 600e+03, "m_{lb}"], 
-                ["float",    "nu_eta", 20, -10, 10, "m_{lb}"],
-                ["float",    "nu_phi", 20, -3.1416, 3.1416, "m_{lb}"],
-                ["float",    "nu_m", 20, -0.2e+03, 0.2e+03, "m_{lb}"],
-                ["float",    "nu_e", 20, 0, 3500e+03, "m_{lb}"],
-                ["float",    "nu_y", 20, -2.9, 2.9, "m_{lb}"],
-                ["float",    "nubar_pt", 20, 0, 600e+03, "m_{lb}"],
-                ["float",    "nubar_eta", 20, -10, 10, "m_{lb}"],
-                ["float",    "nubar_phi", 20, -3.1416, 3.1416, "m_{lb}"],
-                ["float",    "nubar_m", 20, -0.5e+03, 0.5e+03, "m_{lb}"],
-                ["float",    "nubar_e", 20, 0, 1800e+03, "m_{lb}"],
-                ["float",    "nubar_y", 20, -2.9, 2.9, "m_{lb}"],
-                ["float",    "Wp_pt", 20, 0, 800e+03, "m_{lb}"],
-                ["float",    "Wp_eta", 20, -10, 10, "m_{lb}"],
-                ["float",    "Wp_phi", 20, -3.1416, 3.1416, "m_{lb}"],
-                ["float",    "Wp_m", 20, 0, 1000e+03, "m_{lb}"],
-                ["float",    "Wp_e", 20, 0, 3600e+03, "m_{lb}"],
-                ["float",    "Wp_y", 20, -2.9, 2.9, "m_{lb}"], 
-                ["float",    "Wm_pt", 20, 0, 800e+03, "m_{lb}"],
-                ["float",    "Wm_eta", 20, -10, 10, "m_{lb}"],
-                ["float",    "Wm_phi", 20, -3.1416, 3.1416, "m_{lb}"],
-                ["float",    "Wm_m", 20, 0, 1000e+03, "m_{lb}"],
-                ["float",    "Wm_e", 20, 0, 1900e+03, "m_{lb}"],
-                ["float",    "Wm_y", 20, -2.9, 2.9, "m_{lb}"]
+                ["float",    "av_top_pt", 20, 0, 900e+03, "Av. top p_{T}"],
+                ["float",    "av_top_eta", 20, -5, 5, "Av. top \eta"],
+                ["float",    "av_top_phi", 20, -3.1416, 3.1416, "Av. top \phi"],
+                ["float",    "av_top_m", 20, 0, 500e+03, "Av. top m"],
+                ["float",    "av_top_e", 20, 0, 2400e+03, "Av. top E"],
+                ["float",    "av_top_y", 20, -2.9, 2.9, "Av. top y"],
+                ["float",    "ttbar_pt", 20, 0, 900e+03, "ttbar p_{T}"],
+                ["float",    "ttbar_eta", 20, -10, 10, "ttbar \eta"],
+                ["float",    "ttbar_phi", 20, -3.1416, 3.1416, "ttbar \phi"],
+                ["float",    "ttbar_m", 20, 0, 2500e+03, "ttbar m"],
+                ["float",    "ttbar_e", 20, 0, 4700e+03, "ttbar E"],
+                ["float",    "ttbar_y", 20, -2.9, 2.9, "ttbar y"], 
+                ["float",    "ttbar_pout", 20, -700e+03, 700e+03, "ttbar p_{out}"],
+                ["float",    "nu_pt", 20, 0, 600e+03, "\nu p_{T}"], 
+                ["float",    "nu_eta", 20, -10, 10, "\nu \eta"],
+                ["float",    "nu_phi", 20, -3.1416, 3.1416, "\nu \phi"],
+                ["float",    "nu_m", 20, -0.2e+03, 0.2e+03, "\nu m"],
+                ["float",    "nu_e", 20, 0, 3500e+03, "\nu E"],
+                ["float",    "nu_y", 20, -2.9, 2.9, "\nu y"],
+                ["float",    "nubar_pt", 20, 0, 600e+03, "\nubar p_{T}"],
+                ["float",    "nubar_eta", 20, -10, 10, "\nubar \eta"],
+                ["float",    "nubar_phi", 20, -3.1416, 3.1416, "\nubar \phi"],
+                ["float",    "nubar_m", 20, -0.5e+03, 0.5e+03, "\nubar m"],
+                ["float",    "nubar_e", 20, 0, 1800e+03, "\nubar E"],
+                ["float",    "nubar_y", 20, -2.9, 2.9, "\nubar y"],
+                ["float",    "Wp_pt", 20, 0, 800e+03, "W^{+} p_{T}"],
+                ["float",    "Wp_eta", 20, -10, 10, "W^{+} \eta"],
+                ["float",    "Wp_phi", 20, -3.1416, 3.1416, "W^{+} \phi"],
+                ["float",    "Wp_m", 20, 0, 1000e+03, "W^{+} m"],
+                ["float",    "Wp_e", 20, 0, 3600e+03, "W^{+} E"],
+                ["float",    "Wp_y", 20, -2.9, 2.9, "W^{+} y"], 
+                ["float",    "Wm_pt", 20, 0, 800e+03, "W^{-} p_{T}"],
+                ["float",    "Wm_eta", 20, -10, 10, "W^{-} \eta"],
+                ["float",    "Wm_phi", 20, -3.1416, 3.1416, "W^{-} \phi"],
+                ["float",    "Wm_m", 20, 0, 1000e+03, "W^{-} m"],
+                ["float",    "Wm_e", 20, 0, 1900e+03, "W^{-} E"],
+                ["float",    "Wm_y", 20, -2.9, 2.9, "W^{-} y"]
 #                ["Int_t",       "nu_n", 20, 0, 100e+03, "m_{lb}"]
 		]
 
