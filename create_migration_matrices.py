@@ -104,17 +104,27 @@ def populateHistsUp(reco, obsR, part, obsP):
     for j,obs in enumerate(observables):
 	y = obs[1] + "_reco"
 	recoHists[j].Fill(getattr(obsR,y))
+    for j,vec in enumerate(vectors):
+	y = vec[1] + "_reco"
+	if globals()[y].size() > 0: recoHists[shift+j].Fill(globals()[y][0])
     # Check if the event only exists at reco level
     if part.GetEntryWithIndex(obsR.runNumber, obsR.eventNumber) < 0: recoOnly += 1
     # If not, it was matched . fill out the migration matrices
     else:
 	# Fill the reco/particle histograms, and the migration matrices
-	for j,obs in enumerate(observables): 
+	for j,obs in enumerate(observables):
 	  x = obs[1] + "_part"
 	  y = obs[1] + "_reco"
 	  effHists[j].Fill(getattr(obsP,x))
 	  faccHists[j].Fill(getattr(obsR,y))
 	  migrationMatrices[j].Fill(getattr(obsP,x), getattr(obsR,y))
+	for j,vec in enumerate(vectors):
+	  x = vec[1] + "_part"
+	  y = vec[1] + "_reco"
+	  if globals()[x].size() > 0: effHists[shift+j].Fill(globals()[x][0])
+	  if globals()[y].size() > 0: faccHists[shift+j].Fill(globals()[y][0])
+	  if globals()[x].size() > 0 and globals()[y].size() > 0:
+	    migrationMatrices[shift+j].Fill(globals()[x][0],globals()[y][0])
 
 def populateHistsDown(reco, obsR, part, obsP):
   global partOnly
@@ -124,6 +134,9 @@ def populateHistsDown(reco, obsR, part, obsP):
     for j,obs in enumerate(observables):
         x = obs[1] + "_part"
         partHists[j].Fill(getattr(obsP,x))
+    for j,vec in enumerate(vectors):
+        x = vec[1] + "_part"
+        if globals()[x].size() > 0: partHists[shift+j].Fill(globals()[x][0])
     if reco.GetEntryWithIndex(obsP.runNumber, obsP.eventNumber) < 0: partOnly += 1
 
 
@@ -136,6 +149,14 @@ def normalize():
 	for ybins in range(obs[2]): 
 	  if sum != 0: migrationMatrices[i].SetBinContent(xbins, ybins,
 			migrationMatrices[i].GetBinContent(xbins, ybins) / float(sum))
+  for i,vec in enumerate(vectors):
+    # Normalize each x-bin to 1
+    for xbins in range(vec[2]):
+	sum = 0
+	for ybins in range(vec[2]): sum += migrationMatrices[shift+i].GetBinContent(xbins, ybins)
+	for ybins in range(vec[2]): 
+	  if sum != 0: migrationMatrices[shift+i].SetBinContent(xbins, ybins,
+			migrationMatrices[shift+i].GetBinContent(xbins, ybins) / float(sum))
 
 def drawMigrationMatrices():
   os.system("mkdir " + outputMigr)
@@ -148,6 +169,13 @@ def drawMigrationMatrices():
     c.SaveAs(outputMigr + "/migration_" + obs[1] + ".pdf")
     migrationMatrices[i].Draw("LEGO2Z")
     c.SaveAs(outputMigr + "/migration_" + obs[1] + "_lego.pdf")
+  for i,vec in enumerate(vectors):
+    migrationMatrices[shift+i].GetXaxis().SetTitle(vec[5] + "1^{part}")
+    migrationMatrices[shift+i].GetYaxis().SetTitle(vec[5] + "1^{reco}")
+    migrationMatrices[shift+i].Draw("COLZ")
+    c.SaveAs(outputMigr + "/migration_" + vec[1] + "1.pdf")
+    migrationMatrices[shift+i].Draw("LEGO2Z")
+    c.SaveAs(outputMigr + "/migration_" + vec[1] + "1_lego.pdf")
   c.Close()
 
 def efficiencies():
@@ -160,6 +188,12 @@ def efficiencies():
     effHists[i].GetYaxis().SetTitle("\epsilon_{eff} " + obs[5])
     effHists[i].Draw()
     c.SaveAs(outputEff + "/efficiency_" + obs[1] + ".pdf")
+  for i,vec in enumerate(vectors):
+    effHists[shift+i].Divide(partHists[shift+i])
+    effHists[shift+i].GetXaxis().SetTitle(vec[5])
+    effHists[shift+i].GetYaxis().SetTitle("\epsilon_{eff} lead. " + vec[5])
+    effHists[shift+i].Draw()
+    c.SaveAs(outputEff + "/efficiency_" + vec[1] + "1.pdf")
   c.Close()
 
 def fakeHits():
@@ -172,20 +206,35 @@ def fakeHits():
     faccHists[i].GetYaxis().SetTitle("f_{acc} " + obs[5])
     faccHists[i].Draw()
     c.SaveAs(outputFacc + "/fake_hits_rate_" + obs[1] + ".pdf")
+  for i,vec in enumerate(vectors):
+    faccHists[shift+i].Divide(recoHists[shift+i])
+    faccHists[shift+i].GetXaxis().SetTitle(vec[5])
+    faccHists[shift+i].GetYaxis().SetTitle("f_{acc} lead. " + vec[5])
+    faccHists[shift+i].Draw()
+    c.SaveAs(outputFacc + "/fake_hits_rate_" + vec[1] + "1.pdf")
   c.Close()
 
 def drawHists():
   os.system("mkdir " + outputHists)
   for i,obs in enumerate(observables):
     ratioPlot(partHists[i], recoHists[i], outputHists + "/" + obs[1] + ".pdf")
+  for i,vec in enumerate(vectors):
+    ratioPlot(partHists[shift+i], recoHists[shift+i], outputHists + "/" + vec[1] + "1.pdf")
 
 
 recoOnly = 0
 partOnly = 0
 
 # List of observables from which to build migration matrices
-observables = [	["Double_t",	"mlb_minavg", 20, 0, 350e+03, "m_{lb}"],
-		["Int_t",	"nbjets", 8, 0, 8, "n_{b,jets}"]]
+observables = [
+		["Int_t",	"nbjets", 8, 0, 8, "n_{b,jets}"],
+		["Int_t",	"njets", 15, 0, 15, "n_{jets}"],
+		["Double_t",	"mlb_minavg", 20, 0, 350e+03, "m_{lb}"]
+		]
+
+vectors = [
+		["double",	"bjet_pt", 100, 0, 990e+03, "b_{jet} p_T"]
+		]
 
 # Declare migration matrices, reco/part. histograms, eff. & fake hits
 migrationMatrices = []
@@ -210,19 +259,49 @@ for obs in observables:
   effHists.append( TH1F(eff, "\epsilon_{eff} "+obsName, nBins, xMin, xMax ) )
   faccHists.append( TH1F(facc, "f_{acc} "+obsName, nBins, xMin, xMax ) )
 
-myFile = TFile.Open("output_172.5_120K_AF2.root")
+for vec in vectors:
+  mig = "tMatrix_lead_" + vec[1]
+  histP = "tPart_lead_" + vec[1]
+  histR = "tReco_lead_" + vec[1]
+  eff = "tEff_lead_"+ vec[1]
+  facc = "tFacc_lead_" + vec[1]
+  nBins = vec[2]
+  xMin = vec[3]
+  xMax = vec[4]
+  obsName = vec[5]
+  migrationMatrices.append( TH2F(mig, "A_ij lead. "+obsName, nBins, xMin, xMax, nBins, xMin, xMax ) )
+  partHists.append( TH1F(histP, obsName+"1^{part}", nBins, xMin, xMax ) )
+  recoHists.append( TH1F(histR, obsName+"1^{reco}", nBins, xMin, xMax ) )
+  effHists.append( TH1F(eff, "\epsilon_{eff} lead. "+obsName, nBins, xMin, xMax ) )
+  faccHists.append( TH1F(facc, "f_{acc} lead. "+obsName, nBins, xMin, xMax ) )
+
+shift = len(observables)
+
+recoLevel = TChain("nominal")
+recoLevel.Add("output_172.5_120K_AF2.root")
+recoLevel.Add("output_170.0_120K.root")
+
+partLevel = TChain("particleLevel")
+partLevel.Add("output_172.5_120K_AF2.root")
+partLevel.Add("output_170.0_120K.root")
+
+#myFile = TFile.Open("output_172.5_120K_AF2.root")
 
 # Get the reco (nominal) and particle level branches
 #
 # Use the indexing to cross-find events matched on both levels and
 # fill the histograms
 
-recoLevel = myFile.Get("nominal")
-partLevel = myFile.Get("particleLevel")
+#recoLevel = myFile.Get("nominal")
+#partLevel = myFile.Get("particleLevel")
 
+recoIndex = TTreeIndex(recoLevel, "runNumber", "eventNumber")
+partIndex = TTreeIndex(partLevel, "runNumber", "eventNumber")
+recoLevel.SetTreeIndex(recoIndex)
+partLevel.SetTreeIndex(partIndex)
 
-recoLevel.BuildIndex("runNumber", "eventNumber")
-partLevel.BuildIndex("runNumber", "eventNumber")
+#recoLevel.BuildIndex("runNumber", "eventNumber")
+#partLevel.BuildIndex("runNumber", "eventNumber")
 
 # Structs to loop through the branches (needed by SetBranchAddress)
 struct1 = 'struct nominal_t{UInt_t runNumber;ULong64_t eventNumber;'
@@ -234,6 +313,10 @@ for obs in observables:
 
 struct1 += '}'
 struct2 += '}'
+
+for vec in vectors:
+  globals()[vec[1]+'_reco'] = vector(obs[0])()
+  globals()[vec[1]+'_part'] = vector(obs[0])()
 
 gROOT.ProcessLine(struct1)
 gROOT.ProcessLine(struct2)
@@ -249,6 +332,11 @@ recoLevel.SetBranchAddress("eventNumber", AddressOf(nominal,'eventNumber'))
 for obs in observables:
   recoLevel.SetBranchAddress('tma_'+obs[1], AddressOf(nominal,obs[1]+'_reco'))
   partLevel.SetBranchAddress('tma_'+obs[1], AddressOf(particleLevel,obs[1]+'_part'))
+
+for vec in vectors:
+  recoLevel.SetBranchAddress('tma_'+vec[1], AddressOf(globals()[vec[1]+'_reco']))
+  partLevel.SetBranchAddress('tma_'+vec[1], AddressOf(globals()[vec[1]+'_part']))
+  
 
 # Loop through the events at reco level & fill the histograms
 
@@ -273,5 +361,6 @@ drawHists()
 
 efficiencies()
 fakeHits()
+
 
 
