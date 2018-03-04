@@ -34,6 +34,8 @@ outputEff  = "efficiencies_"+timestr
 outputFacc = "fake_hits_rates_"+timestr
 outputClos = "closure_tests_"+timestr
 
+gStyle.SetOptStat("neou")
+
 def ratioPlot(firstHist,secondHist,title):
   hist1 = firstHist.Clone("hist1")
   hist2 = secondHist.Clone("hist2")
@@ -74,6 +76,7 @@ def ratioPlot(firstHist,secondHist,title):
   hist1.GetYaxis().SetTitleSize(20)
   hist1.GetYaxis().SetTitleFont(43)
   hist1.GetYaxis().SetTitleOffset(1.55)
+  hist1.GetYaxis().SetMinimum(0)
   hist1.GetXaxis().SetTitleSize(0)
   hist1.GetXaxis().SetLabelSize(0)
 
@@ -147,57 +150,69 @@ def populateHistsDown(reco, obsR, part, obsP):
 def normalize():
   for i,obs in enumerate(observables):
     # Normalize each x-bin to 1
-    for xbins in range(obs[2]):
-	sum = 0
-	for ybins in range(obs[2]): sum += migrationMatrices[i].GetBinContent(xbins, ybins)
-	for ybins in range(obs[2]): 
+    for xbins in range(obs[2]+2):
+	sum = 0.
+	for ybins in range(obs[2]+2): sum += migrationMatrices[i].GetBinContent(xbins, ybins)
+	for ybins in range(obs[2]+2): 
 	  if sum != 0: migrationMatrices[i].SetBinContent(xbins, ybins,
 			migrationMatrices[i].GetBinContent(xbins, ybins) / float(sum))
   for i,vec in enumerate(vectors):
     # Normalize each x-bin to 1
-    for xbins in range(vec[2]):
-	sum = 0
-	for ybins in range(vec[2]): sum += migrationMatrices[shift+i].GetBinContent(xbins, ybins)
-	for ybins in range(vec[2]): 
+    for xbins in range(vec[2]+2):
+	sum = 0.
+	for ybins in range(vec[2]+2): sum += migrationMatrices[shift+i].GetBinContent(xbins, ybins)
+	for ybins in range(vec[2]+2): 
 	  if sum != 0: migrationMatrices[shift+i].SetBinContent(xbins, ybins,
 			migrationMatrices[shift+i].GetBinContent(xbins, ybins) / float(sum))
 
 def drawMigrationMatrices():
   os.system("mkdir " + outputMigr)
+  migrFile = TFile(outputMigr + "/migration_matrices.root", "NEW")
   c = TCanvas("c","c",900,900)
   c.cd()
   for i,obs in enumerate(observables):
     migrationMatrices[i].GetXaxis().SetTitle(obs[5] + "^{part}")
     migrationMatrices[i].GetYaxis().SetTitle(obs[5] + "^{reco}")
+    migrationMatrices[i].GetZaxis().SetRangeUser(0,1)
     migrationMatrices[i].Draw("COLZ")
     c.SaveAs(outputMigr + "/migration_" + obs[1] + ".pdf")
     migrationMatrices[i].Draw("LEGO2Z")
     c.SaveAs(outputMigr + "/migration_" + obs[1] + "_lego.pdf")
+    migrationMatrices[i].Write()
   for i,vec in enumerate(vectors):
     migrationMatrices[shift+i].GetXaxis().SetTitle(vec[5] + "1^{part}")
     migrationMatrices[shift+i].GetYaxis().SetTitle(vec[5] + "1^{reco}")
+    migrationMatrices[i].GetZaxis().SetRangeUser(0,1)
     migrationMatrices[shift+i].Draw("COLZ")
     c.SaveAs(outputMigr + "/migration_" + vec[1] + "1.pdf")
     migrationMatrices[shift+i].Draw("LEGO2Z")
     c.SaveAs(outputMigr + "/migration_" + vec[1] + "1_lego.pdf")
+    migrationMatrices[shift+i].Write()
+  migrFile.Close()
   c.Close()
 
 def efficiencies():
   os.system("mkdir " + outputEff)
+  effFile = TFile(outputEff + "/efficiencies.root", "NEW")
   c = TCanvas("c","c",900,900)
   c.cd()
   for i,obs in enumerate(observables):
     effHists[i].Divide(partHists[i])
     effHists[i].GetXaxis().SetTitle(obs[5])
     effHists[i].GetYaxis().SetTitle("\epsilon_{eff} " + obs[5])
-    effHists[i].Draw("P")
+    effHists[i].GetYaxis().SetMinimum(0)
+    effHists[i].Draw("*H")
     c.SaveAs(outputEff + "/efficiency_" + obs[1] + ".pdf")
+    effHists[i].Write()
   for i,vec in enumerate(vectors):
     effHists[shift+i].Divide(partHists[shift+i])
     effHists[shift+i].GetXaxis().SetTitle(vec[5])
     effHists[shift+i].GetYaxis().SetTitle("\epsilon_{eff} lead. " + vec[5])
-    effHists[shift+i].Draw("P")
+    effHists[shift+i].GetYaxis().SetMinimum(0)
+    effHists[shift+i].Draw("*H")
     c.SaveAs(outputEff + "/efficiency_" + vec[1] + "1.pdf")
+    effHists[shift+i].Write()
+  effFile.Close()
   c.Close()
 
 def fakeHits():
@@ -208,13 +223,15 @@ def fakeHits():
     faccHists[i].Divide(recoHists[i])
     faccHists[i].GetXaxis().SetTitle(obs[5])
     faccHists[i].GetYaxis().SetTitle("f_{acc} " + obs[5])
-    faccHists[i].Draw("P")
+    faccHists[i].GetYaxis().SetMinimum(0)
+    faccHists[i].Draw("*H")
     c.SaveAs(outputFacc + "/fake_hits_rate_" + obs[1] + ".pdf")
   for i,vec in enumerate(vectors):
     faccHists[shift+i].Divide(recoHists[shift+i])
     faccHists[shift+i].GetXaxis().SetTitle(vec[5])
     faccHists[shift+i].GetYaxis().SetTitle("f_{acc} lead. " + vec[5])
-    faccHists[shift+i].Draw("P")
+    faccHists[shift+i].GetYaxis().SetMinimum(0)
+    faccHists[shift+i].Draw("*H")
     c.SaveAs(outputFacc + "/fake_hits_rate_" + vec[1] + "1.pdf")
   c.Close()
 
@@ -228,17 +245,17 @@ def drawHists():
 def closureTests():
   os.system("mkdir " + outputClos)
   for i,obs in enumerate(observables):
-    for xbins in range(obs[2]):
+    for xbins in range(obs[2]+2):
 	sum = 0.
-	for j in range(obs[2]): sum += migrationMatrices[i].GetBinContent(j,xbins) * partHists[i].GetBinContent(j) \
+	for j in range(obs[2]+2): sum += migrationMatrices[i].GetBinContent(j,xbins) * partHists[i].GetBinContent(j) \
 			* effHists[i].GetBinContent(j)
 	if faccHists[i].GetBinContent(xbins) != 0: sum *= 1./(faccHists[i].GetBinContent(xbins))
 	recoFolded[i].SetBinContent(xbins, sum)
     ratioPlot(recoHists[i], recoFolded[i], outputClos + "/" + obs[1] + ".pdf")
   for i,vec in enumerate(vectors):
-    for xbins in range(vec[2]):
+    for xbins in range(vec[2]+2):
 	sum = 0.
-	for j in range(vec[2]): sum += migrationMatrices[shift+i].GetBinContent(j,xbins) * partHists[shift+i].GetBinContent(j) \
+	for j in range(vec[2]+2): sum += migrationMatrices[shift+i].GetBinContent(j,xbins) * partHists[shift+i].GetBinContent(j) \
 			* effHists[shift+i].GetBinContent(j)
 	if faccHists[shift+i].GetBinContent(xbins) != 0: sum *= 1./(faccHists[shift+i].GetBinContent(xbins))
 	recoFolded[shift+i].SetBinContent(xbins, sum)
@@ -253,15 +270,15 @@ observables = [
 		["Int_t",	"nbjets", 8, 0, 8, "n_{b,jets}"],
 		["Int_t",	"njets", 15, 0, 15, "n_{jets}"],
 		["Double_t",    "etdr", 20, 0, 400e+03, "E_{T}\DeltaR"],
-                ["Double_t",    "met", 20, 0, 1100e+03, "Missing E_{T}"],
+#                ["Double_t",    "met", 20, 0, 1100e+03, "Missing E_{T}"],
                 ["Double_t",    "met_ex", 20, -1000e+03, 1000e+03, "MET E_{x}"],
                 ["Double_t",    "met_ey", 20, -1000e+03, 1000e+03, "MET E_{y}"],
-                ["Double_t",    "met_phi", 20, -3.1416, 3.1416, "MET \phi"],
-                ["Double_t",    "mlb_minavg", 20, 0, 400e+03, "m_{lb}"],
-                ["Double_t",    "mlb_minavglow", 20, 0, 300e+03, "m_{lb}"],
-                ["Double_t",    "mlb_minavghigh", 20, 0, 700e+03, "m_{lb}"],
-                ["Double_t",    "mlb_minmax", 20, 0, 700e+03, "m_{lb}"],
-                ["Double_t",    "mlb_minmaxlow", 20, 0, 300e+03, "m_{lb}"],
+#                ["Double_t",    "met_phi", 20, -3.1416, 3.1416, "MET \phi"],
+                ["Double_t",    "mlb_minavg", 20, 0, 400e+03, "m_{lb,minavg}"],
+                ["Double_t",    "mlb_minavglow", 20, 0, 300e+03, "m_{lb,minavglow}"],
+                ["Double_t",    "mlb_minavghigh", 20, 0, 700e+03, "m_{lb,minavghigh}"],
+                ["Double_t",    "mlb_minmax", 20, 0, 700e+03, "m_{lb,minmax}"],
+                ["Double_t",    "mlb_minmaxlow", 20, 0, 300e+03, "m_{lb,minmaxlow}"],
 #                ["Double_t",    "mlb_minmaxhigh", 20, 0, 300e+03, "m_{lb}"],
                 ["Double_t",    "pTlb_1", 20, 0, 600e+03, "p_{T,lb}_{1}"],
                 ["Double_t",    "pTlb_2", 20, 0, 500e+03, "p_{T,lb}_{2}"],
@@ -414,8 +431,8 @@ struct1 += '}'
 struct2 += '}'
 
 for vec in vectors:
-  globals()[vec[1]+'_reco'] = vector(obs[0])()
-  globals()[vec[1]+'_part'] = vector(obs[0])()
+  globals()[vec[1]+'_reco'] = vector(vec[0])()
+  globals()[vec[1]+'_part'] = vector(vec[0])()
 
 gROOT.ProcessLine(struct1)
 gROOT.ProcessLine(struct2)
