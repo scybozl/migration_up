@@ -27,12 +27,13 @@ import os, sys
 timestr = strftime("%d-%m-%y--%H.%M.%S", gmtime())
 
 inputfile = sys.argv[1]
+mtop = "mt"+sys.argv[2]
 
-outputMigr = "migration_matrices_"+timestr
-outputHists= "histograms_"+timestr
-outputEff  = "efficiencies_"+timestr
-outputFacc = "fake_hits_rates_"+timestr
-outputClos = "closure_tests_"+timestr
+outputMigr = "migration_matrices_"+mtop+"_"+timestr
+outputHists= "histograms_"+mtop+"_"+timestr
+outputEff  = "efficiencies_"+mtop+"_"+timestr
+outputFacc = "fake_hits_rates_"+mtop+"_"+timestr
+outputClos = "closure_tests_"+mtop+"_"+timestr
 
 gStyle.SetOptStat("neou")
 
@@ -105,7 +106,7 @@ def ratioPlot(firstHist,secondHist,title):
 def populateHistsUp(reco, obsR, part, obsP):
   os.system("mkdir " + outputHists)
   global recoOnly
-  recoFile = TFile(outputHists + "/reco_level.root", "NEW")
+  recoFile = TFile(outputHists + "/reco_level_"+mtop+".root", "NEW")
   for i in range(reco.GetEntries()):
     if ((i+1) % 1000) == 0: print "Processing event number " + str(i+1) + "..."
     reco.GetEntry(i)
@@ -142,7 +143,7 @@ def populateHistsUp(reco, obsR, part, obsP):
 def populateHistsDown(reco, obsR, part, obsP):
   os.system("mkdir " + outputHists)
   global partOnly
-  partFile = TFile(outputHists + "/part_level.root", "NEW")
+  partFile = TFile(outputHists + "/part_level_"+mtop+".root", "NEW")
   for i in range(part.GetEntries()):
     if ((i+1) % 1000) == 0: print "Processing event number " + str(i+1) + "..."
     part.GetEntry(i)
@@ -179,7 +180,7 @@ def normalize():
 
 def drawMigrationMatrices():
   os.system("mkdir " + outputMigr)
-  migrFile = TFile(outputMigr + "/migration_matrices.root", "NEW")
+  migrFile = TFile(outputMigr + "/migration_matrices_"+mtop+".root", "NEW")
   c = TCanvas("c","c",900,900)
   c.cd()
   for i,obs in enumerate(observables):
@@ -205,7 +206,7 @@ def drawMigrationMatrices():
 
 def efficiencies():
   os.system("mkdir " + outputEff)
-  effFile = TFile(outputEff + "/efficiencies.root", "NEW")
+  effFile = TFile(outputEff + "/efficiencies_"+mtop+".root", "NEW")
   c = TCanvas("c","c",900,900)
   c.cd()
   for i,obs in enumerate(observables):
@@ -229,7 +230,7 @@ def efficiencies():
 
 def fakeHits():
   os.system("mkdir " + outputFacc)
-  fakeFile = TFile(outputFacc + "/fake_hits_rates.root", "NEW")
+  fakeFile = TFile(outputFacc + "/fake_hits_rates_"+mtop+".root", "NEW")
   c = TCanvas("c","c",900,900)
   c.cd()
   for i,obs in enumerate(observables):
