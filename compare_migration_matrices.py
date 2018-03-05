@@ -34,24 +34,35 @@ for i in file1.GetListOfKeys():
     migrationMatrices2.append("")
     print "Branch " + hist + " not found in " + migr2
 
-
 for i, Aij1 in enumerate(migrationMatrices1):
   if migrationMatrices2[i] != "":
     print "Now treating " + Aij1.GetName()
     xmin = Aij1.GetXaxis().GetXmin()
     xmax = Aij1.GetXaxis().GetXmax()
+    print "Preparing the fit function..."
     fit = TF2("fit", "[0]+0*x*y", xmin, xmax, xmin, xmax)
-    fit.SetNpx(Aij1.GetXaxis().GetNbins())
-    fit.SetNpy(Aij1.GetXaxis().GetNbins())
+    fit.SetNpx(Aij1.GetXaxis().GetNbins()+1)
+    fit.SetNpy(Aij1.GetXaxis().GetNbins()+1)
     Aij2 = migrationMatrices2[i]
-    diff = migrationMatrices1[i].Clone("diff")
-    diff.Add(Aij2, -1)
+    diff = Aij1.Clone("diff")
+    diff.Add(Aij2, -2)
+    toPlot = diff.Clone("A_{ij}^1 - A_{ij}^2")
     fitResult = diff.Fit("fit", "S")
     fitResult.Print()
-    const = "%.3f" % fitResult.Value(0)
-    err = "%.3f" % fitResult.Error(0)
+    const = "%.4f" % fitResult.Value(0)
+    err = "%.4f" % fitResult.Error(0)
     c = TCanvas("c","c",900,900)
     c.cd()
+    fit.SetParameter(0, fitResult.Value(0))
+    fit.SetTitle("")
+    fit.GetZaxis().SetRangeUser(-1.,1.)
+    fit.Draw("surf")
+    toPlot.GetXaxis().SetLabelSize(0.001)
+    toPlot.GetYaxis().SetLabelSize(0.001)
+    toPlot.GetXaxis().SetTitleOffset(0.01)
+    toPlot.GetYaxis().SetTitleOffset(0.01)
+    toPlot.GetZaxis().SetRangeUser(-1.,1.)
+    toPlot.Draw("surfe same")
     xlabel = TText();
     xlabel.SetNDC();
     xlabel.SetTextFont(1);
@@ -61,10 +72,8 @@ for i, Aij1 in enumerate(migrationMatrices1):
     xlabel.SetTextAngle(0);
     result = "offset = " + str(const) + " +/- " + str(err)
     xlabel.DrawText(0.3, 0.9, result);
-    diff.Draw("LEGO2Z same")
-    fit.Draw("cont1 same")
-    diff.Delete()
-    fit.Delete()
     c.SaveAs(output + "/" + Aij1.GetName() + "_" + mtop1 + "_" + mtop2 + ".pdf")
     c.Close()
+    diff.Delete()
+    fit.Delete()
 
