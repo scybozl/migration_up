@@ -1,3 +1,1 @@
-/afs/cern.ch/work/l/lscyboz/public/TopAnalysis/user.aknue.410493.PowhegPythia8EvtGen.DAOD_TOPQ1.e5965_a766_a821_r7676_p2952.02-04-42_MTOP_Nom_PL_output.root/user.aknue.13306341._000002.output.root
-/afs/cern.ch/work/l/lscyboz/public/TopAnalysis/user.aknue.410493.PowhegPythia8EvtGen.DAOD_TOPQ1.e5965_a766_a821_r7676_p2952.02-04-42_MTOP_Nom_PL_output.root/user.aknue.13306341._000003.output.root
-/afs/cern.ch/work/l/lscyboz/public/TopAnalysis/user.aknue.410493.PowhegPythia8EvtGen.DAOD_TOPQ1.e5965_a766_a821_r7676_p2952.02-04-42_MTOP_Nom_PL_output.root/user.aknue.13306341._000001.output.root
+output_mt172p5_120K_AF2.root
