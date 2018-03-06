@@ -1,1 +1,1 @@
-rm -r efficiencies* fake_hits* migration* histograms* closure*
+rm -r efficiencies* fake_hits* migration_matrices* histograms* closure*
