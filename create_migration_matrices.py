@@ -36,6 +36,7 @@ outputFacc = "fake_hits_rates_"+mtop+"_"+timestr
 outputClos = "closure_tests_"+mtop+"_"+timestr
 
 gStyle.SetOptStat("neou")
+gStyle.SetPaintTextFormat(".4f")
 
 def ratioPlot(firstHist,secondHist,title):
   hist1 = firstHist.Clone("hist1")
@@ -165,45 +166,45 @@ def normalize():
     # Normalize each x-bin to 1
     for xbins in range(obs[2]+2):
 	sum = 0.
-	errori = []
+##	errori = []
 	for ybins in range(obs[2]+2): 
 		sum += migrationMatrices[i].GetBinContent(xbins, ybins)
-		errori.append(migrationMatrices[i].GetBinError(xbins, ybins))
+##		errori.append(migrationMatrices[i].GetBinError(xbins, ybins))
 	for ybins in range(obs[2]+2): 
 	  if sum != 0: 
 		migrationMatrices[i].SetBinContent(xbins, ybins,
 			migrationMatrices[i].GetBinContent(xbins, ybins) / float(sum))
 #		migrationMatrices[i].SetBinError(xbins, ybins,
 #			migrationMatrices[i].GetBinError(xbins, ybins) / float(sum))
-#		migrationMatrices[i].SetBinError( xbins, ybins,
-#			migrationMatrices[i].GetBinError(xbins, ybins) / float(sum) 
-#			* (1 - migrationMatrices[i].GetBinError(xbins, ybins) / float(sum)) )
-		error2 = 1./pow(float(sum),2) * pow(errori[ybins],2)
-		for ys in range(obs[2]+2):
-		  error2 +=  pow(migrationMatrices[i].GetBinContent(xbins, ybins),2) / pow(float(sum),4) * pow(errori[ys],2)
-		migrationMatrices[i].SetBinError(xbins, ybins, sqrt(error2))
+		migrationMatrices[i].SetBinError( xbins, ybins,
+			migrationMatrices[i].GetBinError(xbins, ybins) / float(sum) 
+			* (1 - migrationMatrices[i].GetBinError(xbins, ybins) / float(sum)) )
+##		error2 = 1./pow(float(sum),2) * pow(errori[ybins],2)
+##		for ys in range(obs[2]+2):
+##		  error2 +=  pow(migrationMatrices[i].GetBinContent(xbins, ybins),2) / pow(float(sum),4) * pow(errori[ys],2)
+##		migrationMatrices[i].SetBinError(xbins, ybins, sqrt(error2))
 		
   for i,vec in enumerate(vectors):
     # Normalize each x-bin to 1
     for xbins in range(vec[2]+2):
 	sum = 0.
-	errori = []
+##	errori = []
 	for ybins in range(vec[2]+2): 
 		sum += migrationMatrices[shift+i].GetBinContent(xbins, ybins)
-		errori.append(migrationMatrices[shift+i].GetBinError(xbins, ybins))
+##		errori.append(migrationMatrices[shift+i].GetBinError(xbins, ybins))
 	for ybins in range(vec[2]+2): 
 	  if sum != 0: 
 		migrationMatrices[shift+i].SetBinContent(xbins, ybins,
 			migrationMatrices[shift+i].GetBinContent(xbins, ybins) / float(sum))
 #		migrationMatrices[shift+i].SetBinError(xbins, ybins,
 #			migrationMatrices[shift+i].GetBinError(xbins, ybins) / float(sum))
-#		migrationMatrices[shift+i].SetBinError( xbins, ybins,
-#			migrationMatrices[shift+i].GetBinError(xbins, ybins) / float(sum) 
-#			* (1 - migrationMatrices[shift+i].GetBinError(xbins, ybins) / float(sum)) )
-		error2 = 1./pow(float(sum),2) * pow(errori[ybins],2)
-		for ys in range(vec[2]+2):
-		  error2 +=  pow(migrationMatrices[shift+i].GetBinContent(xbins, ybins),2) / pow(float(sum),4) * pow(errori[ys],2)
-		migrationMatrices[shift+i].SetBinError(xbins, ybins, sqrt(error2))
+		migrationMatrices[shift+i].SetBinError( xbins, ybins,
+			migrationMatrices[shift+i].GetBinError(xbins, ybins) / float(sum) 
+			* (1 - migrationMatrices[shift+i].GetBinError(xbins, ybins) / float(sum)) )
+##		error2 = 1./pow(float(sum),2) * pow(errori[ybins],2)
+##		for ys in range(vec[2]+2):
+##		  error2 +=  pow(migrationMatrices[shift+i].GetBinContent(xbins, ybins),2) / pow(float(sum),4) * pow(errori[ys],2)
+##		migrationMatrices[shift+i].SetBinError(xbins, ybins, sqrt(error2))
 
 def drawMigrationMatrices():
   os.system("mkdir " + outputMigr)
@@ -214,6 +215,7 @@ def drawMigrationMatrices():
     migrationMatrices[i].GetXaxis().SetTitle(obs[5] + "^{part}")
     migrationMatrices[i].GetYaxis().SetTitle(obs[5] + "^{reco}")
     migrationMatrices[i].GetZaxis().SetRangeUser(0,1)
+    migrationMatrices[i].SetMarkerSize(0.3)
     migrationMatrices[i].Draw("COLZ TEXT E")
     c.SaveAs(outputMigr + "/migration_" + obs[1] + ".pdf")
     migrationMatrices[i].Draw("LEGO2Z")
@@ -222,7 +224,8 @@ def drawMigrationMatrices():
   for i,vec in enumerate(vectors):
     migrationMatrices[shift+i].GetXaxis().SetTitle(vec[5] + "1^{part}")
     migrationMatrices[shift+i].GetYaxis().SetTitle(vec[5] + "1^{reco}")
-    migrationMatrices[i].GetZaxis().SetRangeUser(0,1)
+    migrationMatrices[shift+i].GetZaxis().SetRangeUser(0,1)
+    migrationMatrices[shift+i].SetMarkerSize(0.3)
     migrationMatrices[shift+i].Draw("COLZ TEXT E")
     c.SaveAs(outputMigr + "/migration_" + vec[1] + "1.pdf")
     migrationMatrices[shift+i].Draw("LEGO2Z")
