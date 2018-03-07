@@ -118,7 +118,14 @@ def populateHistsUp(reco, obsR, part, obsP):
 	y = vec[1] + "_reco"
 	if globals()[y].size() > 0: recoHists[shift+j].Fill(globals()[y][0])
     # Check if the event only exists at reco level
-    if part.GetEntryWithIndex(obsR.runNumber, obsR.eventNumber) < 0: recoOnly += 1
+    if part.GetEntryWithIndex(obsR.runNumber, obsR.eventNumber) < 0:
+	recoOnly += 1
+	for j,obs in enumerate(observables):
+	  y = obs[1] + "_reco"
+	  facc[j].Fill(kFALSE,getattr(obsR,y))
+	for j,vec in enumerate(vectors):
+  	  y = vec[1] + "_reco"
+	  if globals()[y].size() > 0:  facc[shift+j].Fill(kFALSE,globals()[y][0])
     # If not, it was matched . fill out the migration matrices
     else:
 	# Fill the reco/particle histograms, and the migration matrices
@@ -127,12 +134,18 @@ def populateHistsUp(reco, obsR, part, obsP):
 	  y = obs[1] + "_reco"
 	  effHists[j].Fill(getattr(obsP,x))
 	  faccHists[j].Fill(getattr(obsR,y))
+	  eff[j].Fill(kTRUE,getattr(obsP,x))
+	  facc[j].Fill(kTRUE,getattr(obsR,y))
 	  migrationMatrices[j].Fill(getattr(obsP,x), getattr(obsR,y))
 	for j,vec in enumerate(vectors):
 	  x = vec[1] + "_part"
 	  y = vec[1] + "_reco"
-	  if globals()[x].size() > 0: effHists[shift+j].Fill(globals()[x][0])
-	  if globals()[y].size() > 0: faccHists[shift+j].Fill(globals()[y][0])
+	  if globals()[x].size() > 0: 
+	    effHists[shift+j].Fill(globals()[x][0])
+	    eff[shift+j].Fill(kTRUE,globals()[x][0])
+	  if globals()[y].size() > 0: 
+	    faccHists[shift+j].Fill(globals()[y][0])
+	    facc[shift+j].Fill(kTRUE,globals()[y][0])
 	  if globals()[x].size() > 0 and globals()[y].size() > 0:
 	    migrationMatrices[shift+j].Fill(globals()[x][0],globals()[y][0])
   for j,obs in enumerate(observables):
@@ -150,11 +163,18 @@ def populateHistsDown(reco, obsR, part, obsP):
     part.GetEntry(i)
     for j,obs in enumerate(observables):
         x = obs[1] + "_part"
-        partHists[j].Fill(getattr(obsP,x))
+        partHists[j].Fill(getattr(obsP,x))	
     for j,vec in enumerate(vectors):
         x = vec[1] + "_part"
         if globals()[x].size() > 0: partHists[shift+j].Fill(globals()[x][0])
-    if reco.GetEntryWithIndex(obsP.runNumber, obsP.eventNumber) < 0: partOnly += 1
+    if reco.GetEntryWithIndex(obsP.runNumber, obsP.eventNumber) < 0: 
+	partOnly += 1
+	for j,obs in enumerate(observables):
+          x = obs[1] + "_part"
+          eff[j].Fill(kFALSE,getattr(obsP,x))	
+	for j,vec in enumerate(vectors):
+          x = vec[1] + "_part"
+          if globals()[x].size() > 0: eff[shift+j].Fill(kFALSE,globals()[x][0])
   for j,obs in enumerate(observables):
     partHists[j].Write()
   for j,vec in enumerate(vectors):
@@ -258,6 +278,28 @@ def efficiencies():
   effFile.Close()
   c.Close()
 
+def effDraw():
+  os.system("mkdir " + outputEff)
+  effFile = TFile(outputEff + "/efficiencies_class_"+mtop+".root", "NEW")
+  c = TCanvas("c","c",900,900)
+  c.cd()
+  for i,obs in enumerate(observables):
+   # eff[i].SetTitle(obs[5])
+   # eff[i].GetYaxis().SetTitle("#epsilon_{eff} " + obs[5])
+   # eff[i].GetYaxis().SetRangeUser(0.,1.)
+    eff[i].Draw("AP")
+    c.SaveAs(outputEff + "/efficiency_class_" + obs[1] + ".pdf")
+    eff[i].Write()
+  for i,vec in enumerate(vectors):
+   # eff[shift+i].SetTitle(vec[5])
+    #eff[shift+i].GetYaxis().SetTitle("#epsilon_{eff} lead. " + vec[5])
+    #eff[shift+i].GetYaxis().SetRangeUser(0.,1.)
+    eff[shift+i].Draw("AP")
+    c.SaveAs(outputEff + "/efficiency_class_" + vec[1] + "1.pdf")
+    eff[shift+i].Write()
+  effFile.Close()
+  c.Close()
+
 def fakeHits():
   os.system("mkdir " + outputFacc)
   fakeFile = TFile(outputFacc + "/fake_hits_rates_"+mtop+".root", "NEW")
@@ -279,6 +321,28 @@ def fakeHits():
     faccHists[shift+i].Draw("*H")
     c.SaveAs(outputFacc + "/fake_hits_rate_" + vec[1] + "1.pdf")
     faccHists[shift+i].Write()
+  fakeFile.Close()
+  c.Close()
+
+def faccDraw():
+  os.system("mkdir " + outputFacc)
+  fakeFile = TFile(outputFacc + "/fake_hits_rates_class_"+mtop+".root", "NEW")
+  c = TCanvas("c","c",900,900)
+  c.cd()
+  for i,obs in enumerate(observables):
+    #faccHists[i].GetXaxis().SetTitle(obs[5])
+    #faccHists[i].GetYaxis().SetTitle("f_{acc} " + obs[5])
+    #faccHists[i].GetYaxis().SetRangeUser(0.,1.)
+    facc[i].Draw("AP")
+    c.SaveAs(outputFacc + "/fake_hits_rate_class_" + obs[1] + ".pdf")
+    facc[i].Write()
+  for i,vec in enumerate(vectors):
+    #faccHists[shift+i].GetXaxis().SetTitle(vec[5])
+    #faccHists[shift+i].GetYaxis().SetTitle("f_{acc} lead. " + vec[5])
+    #faccHists[shift+i].GetYaxis().SetRangeUser(0.,1.)
+    facc[shift+i].Draw("AP")
+    c.SaveAs(outputFacc + "/fake_hits_rate_class_" + vec[1] + "1.pdf")
+    facc[shift+i].Write()
   fakeFile.Close()
   c.Close()
 
@@ -435,13 +499,17 @@ partHists = []
 recoHists = []
 effHists = []
 faccHists = []
+eff = []
+facc = []
 
 for obs in observables:
   mig = "tMatrix_" + obs[1]
-  histP = "tPart_" + obs[1] 
+  histP = "tPart_" + obs[1]
   histR = "tReco_" + obs[1]
-  eff = "tEff_"+ obs[1]
-  facc = "tFacc_" + obs[1]
+  epsilon = "tEff_"+ obs[1]
+  fake = "tFacc_" + obs[1]
+  effName = "tEff_"+ obs[1]
+  faccName = "tFacc_" + obs[1]
   nBins = obs[2]
   xMin = obs[3]
   xMax = obs[4]
@@ -449,15 +517,19 @@ for obs in observables:
   migrationMatrices.append( TH2F(mig, "A_{ij} "+obsName, nBins, xMin, xMax, nBins, xMin, xMax ) )
   partHists.append( TH1F(histP, obsName+"^{part}", nBins, xMin, xMax ) )
   recoHists.append( TH1F(histR, obsName+"^{reco}", nBins, xMin, xMax ) )
-  effHists.append( TH1F(eff, "#epsilon_{eff} "+obsName, nBins, xMin, xMax ) )
-  faccHists.append( TH1F(facc, "f_{acc} "+obsName, nBins, xMin, xMax ) )
+  effHists.append( TH1F(epsilon, "#epsilon_{epsilon} "+obsName, nBins, xMin, xMax ) )
+  faccHists.append( TH1F(fake, "f_{acc} "+obsName, nBins, xMin, xMax ) )
+  eff.append( TEfficiency(effName, "#epsilon_{epsilon} "+obsName, nBins, xMin, xMax ) )
+  facc.append( TEfficiency(faccName, "f_{acc} "+obsName, nBins, xMin, xMax ) ) 
 
 for vec in vectors:
   mig = "tMatrix_lead_" + vec[1]
   histP = "tPart_lead_" + vec[1]
   histR = "tReco_lead_" + vec[1]
-  eff = "tEff_lead_"+ vec[1]
-  facc = "tFacc_lead_" + vec[1]
+  epsilon = "tEff_lead_"+ vec[1]
+  fake = "tFacc_lead_" + vec[1]
+  effName = "tEff_"+ vec[1]
+  faccName = "tFacc_" + vec[1]
   nBins = vec[2]
   xMin = vec[3]
   xMax = vec[4]
@@ -465,8 +537,10 @@ for vec in vectors:
   migrationMatrices.append( TH2F(mig, "A_{ij} lead. "+obsName, nBins, xMin, xMax, nBins, xMin, xMax ) )
   partHists.append( TH1F(histP, obsName+"1^{part}", nBins, xMin, xMax ) )
   recoHists.append( TH1F(histR, obsName+"1^{reco}", nBins, xMin, xMax ) )
-  effHists.append( TH1F(eff, "#epsilon_{eff} lead. "+obsName, nBins, xMin, xMax ) )
-  faccHists.append( TH1F(facc, "f_{acc} lead. "+obsName, nBins, xMin, xMax ) )
+  effHists.append( TH1F(epsilon, "#epsilon_{epsilon} lead. "+obsName, nBins, xMin, xMax ) )
+  faccHists.append( TH1F(fake, "f_{acc} lead. "+obsName, nBins, xMin, xMax ) )
+  eff.append( TEfficiency(effName, "#epsilon_{epsilon} lead. "+obsName, nBins, xMin, xMax ) )
+  facc.append( TEfficiency(faccName, "f_{acc} lead. "+obsName, nBins, xMin, xMax ) ) 
 
 shift = len(observables)
 
@@ -560,7 +634,9 @@ drawHists()
 # Compute the efficiencies / fake hit rates and draw them
 
 efficiencies()
+effDraw()
 fakeHits()
+faccDraw()
 
 # Do closure tests to check if the computed folding to reco-level works properly
 
