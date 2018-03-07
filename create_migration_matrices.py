@@ -48,8 +48,8 @@ def ratioPlot(firstHist,secondHist,title):
   pad1.Draw()             # Draw the upper pad: pad1
   pad1.cd()               # pad1 becomes the current pad
 #  hist1.SetStats(0)       # No statistics on upper plot
-  hist1.Draw()            # Draw hist1
-  hist2.Draw("same")      # Draw hist2
+  hist1.Draw("ep")            # Draw hist1
+  hist2.Draw("ep same")      # Draw hist2
   # lower plot will be in pad
   c2.cd()          # Go back to the main canvas before defining pad2
   pad2 = TPad("pad2", "pad2", 0, 0.05, 1, 0.3)
@@ -294,18 +294,51 @@ def closureTests():
   for i,obs in enumerate(observables):
     for xbins in range(obs[2]+2):
 	sum = 0.
-	for j in range(obs[2]+2): sum += migrationMatrices[i].GetBinContent(j,xbins) * partHists[i].GetBinContent(j) \
+	error1_2 = 0.
+	error2_2 = 0.
+	error3_2 = 0.
+	for j in range(obs[2]+2): 
+		sum += migrationMatrices[i].GetBinContent(j,xbins) * partHists[i].GetBinContent(j) \
 			* effHists[i].GetBinContent(j)
-	if faccHists[i].GetBinContent(xbins) != 0: sum *= 1./(faccHists[i].GetBinContent(xbins))
+		error1_2 += migrationMatrices[i].GetBinError(j,xbins) * partHists[i].GetBinContent(j) \
+			* effHists[i].GetBinContent(j)
+		error2_2 += migrationMatrices[i].GetBinContent(j,xbins) * partHists[i].GetBinError(j) \
+			* effHists[i].GetBinContent(j)
+		error3_2 += migrationMatrices[i].GetBinContent(j,xbins) * partHists[i].GetBinContent(j) \
+			* effHists[i].GetBinError(j)
+	print "Error parts for "+obs[1]
+	print error1_2
+	print error2_2
+	print error3_2
+	if faccHists[i].GetBinContent(xbins) != 0: 
+		sum *= 1./(faccHists[i].GetBinContent(xbins))
+		error2 = 1./pow(faccHists[i].GetBinContent(xbins),4) * ( pow(faccHists[i].GetBinError(xbins)*sum,2) \
+                	+ pow(faccHists[i].GetBinContent(xbins),2) * ( error1_2 + error2_2 + error3_2 ) )
+        else: error2 = 0.
 	recoFolded[i].SetBinContent(xbins, sum)
+	recoFolded[i].SetBinError(xbins,sqrt(error2))
     ratioPlot(recoHists[i], recoFolded[i], outputClos + "/" + obs[1] + ".pdf")
   for i,vec in enumerate(vectors):
     for xbins in range(vec[2]+2):
 	sum = 0.
-	for j in range(vec[2]+2): sum += migrationMatrices[shift+i].GetBinContent(j,xbins) * partHists[shift+i].GetBinContent(j) \
+	error1_2 = 0.
+	error2_2 = 0.
+	error3_2 = 0.
+	for j in range(vec[2]+2): 
+		sum += migrationMatrices[shift+i].GetBinContent(j,xbins) * partHists[shift+i].GetBinContent(j) \
 			* effHists[shift+i].GetBinContent(j)
-	if faccHists[shift+i].GetBinContent(xbins) != 0: sum *= 1./(faccHists[shift+i].GetBinContent(xbins))
+		error1_2 += migrationMatrices[shift+i].GetBinError(j,xbins) * partHists[shift+i].GetBinContent(j) \
+			* effHists[shift+i].GetBinContent(j)
+		error2_2 += migrationMatrices[shift+i].GetBinContent(j,xbins) * partHists[shift+i].GetBinError(j) \
+			* effHists[shift+i].GetBinContent(j)
+		error3_2 += migrationMatrices[shift+i].GetBinContent(j,xbins) * partHists[shift+i].GetBinContent(j) \
+			* effHists[shift+i].GetBinError(j)
+	if faccHists[shift+i].GetBinContent(xbins) != 0:
+		sum *= 1./(faccHists[shift+i].GetBinContent(xbins))
+		error2 = 1./pow(faccHists[shift+i].GetBinContent(xbins),4) * ( pow(faccHists[shift+i].GetBinError(xbins)*sum,2) \
+                	+ pow(faccHists[shift+i].GetBinContent(xbins),2) * ( error1_2 + error2_2 + error3_2 ) )
 	recoFolded[shift+i].SetBinContent(xbins, sum)
+	recoFolded[shift+i].SetBinError(xbins,sqrt(error2))
     ratioPlot(recoHists[shift+i], recoFolded[shift+i], outputClos + "/" + vec[1] + ".pdf")
     
 
