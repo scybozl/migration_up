@@ -261,10 +261,14 @@ def efficiencies():
   c.cd()
   for i,obs in enumerate(observables):
     effHists[i].Divide(partHists[i])
+    for bin in range(obs[2]+2):
+	e = effHists[i].GetBinContent(bin)
+	if partHists[i].GetBinContent(bin) != 0: effHists[i].SetBinError(bin,sqrt( e*(1-e)/partHists[i].GetBinContent(bin)))
+	else: effHists[i].SetBinError(bin,0)
     effHists[i].GetXaxis().SetTitle(obs[5])
     effHists[i].GetYaxis().SetTitle("#epsilon_{eff} " + obs[5])
     effHists[i].GetYaxis().SetRangeUser(0.,1.)
-    effHists[i].Draw("*H")
+    effHists[i].Draw("*HE")
     c.SaveAs(outputEff + "/efficiency_" + obs[1] + ".pdf")
     effHists[i].Write()
   for i,vec in enumerate(vectors):
