@@ -288,6 +288,11 @@ def effDraw():
    # eff[i].GetYaxis().SetTitle("#epsilon_{eff} " + obs[5])
    # eff[i].GetYaxis().SetRangeUser(0.,1.)
     eff[i].Draw("AP")
+    gPad.Update(); 
+    graph = eff[i].GetPaintedGraph(); 
+    graph.SetMinimum(0);
+    graph.SetMaximum(1); 
+    gPad.Update(); 
     c.SaveAs(outputEff + "/efficiency_class_" + obs[1] + ".pdf")
     eff[i].Write()
   for i,vec in enumerate(vectors):
@@ -295,6 +300,11 @@ def effDraw():
     #eff[shift+i].GetYaxis().SetTitle("#epsilon_{eff} lead. " + vec[5])
     #eff[shift+i].GetYaxis().SetRangeUser(0.,1.)
     eff[shift+i].Draw("AP")
+    gPad.Update(); 
+    graph = eff[i].GetPaintedGraph(); 
+    graph.SetMinimum(0);
+    graph.SetMaximum(1); 
+    gPad.Update(); 
     c.SaveAs(outputEff + "/efficiency_class_" + vec[1] + "1.pdf")
     eff[shift+i].Write()
   effFile.Close()
@@ -334,6 +344,11 @@ def faccDraw():
     #faccHists[i].GetYaxis().SetTitle("f_{acc} " + obs[5])
     #faccHists[i].GetYaxis().SetRangeUser(0.,1.)
     facc[i].Draw("AP")
+    gPad.Update(); 
+    graph = eff[i].GetPaintedGraph(); 
+    graph.SetMinimum(0);
+    graph.SetMaximum(1); 
+    gPad.Update(); 
     c.SaveAs(outputFacc + "/fake_hits_rate_class_" + obs[1] + ".pdf")
     facc[i].Write()
   for i,vec in enumerate(vectors):
@@ -341,6 +356,11 @@ def faccDraw():
     #faccHists[shift+i].GetYaxis().SetTitle("f_{acc} lead. " + vec[5])
     #faccHists[shift+i].GetYaxis().SetRangeUser(0.,1.)
     facc[shift+i].Draw("AP")
+    gPad.Update(); 
+    graph = eff[i].GetPaintedGraph(); 
+    graph.SetMinimum(0);
+    graph.SetMaximum(1); 
+    gPad.Update(); 
     c.SaveAs(outputFacc + "/fake_hits_rate_class_" + vec[1] + "1.pdf")
     facc[shift+i].Write()
   fakeFile.Close()
