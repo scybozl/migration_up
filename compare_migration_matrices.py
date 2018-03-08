@@ -62,8 +62,8 @@ def ratioPlot(firstHist,secondHist,title):
   pad1.Draw()             # Draw the upper pad: pad1
   pad1.cd()               # pad1 becomes the current pad
 #  hist1.SetStats(0)       # No statistics on upper plot
-  hist1.Draw()            # Draw hist1
-  hist2.Draw("same")      # Draw hist2
+  hist1.Draw("ep")            # Draw hist1
+  hist2.Draw("ep same")      # Draw hist2
   # lower plot will be in pad
   c2.cd()          # Go back to the main canvas before defining pad2
   pad2 = TPad("pad2", "pad2", 0, 0.05, 1, 0.3)
@@ -176,10 +176,25 @@ for i, Aij1 in enumerate(migrationMatrices1):
   nbins = Aij1.GetXaxis().GetNbins()
   for xbins in range(nbins+2):
         sum = 0.
-        for j in range(nbins+2): sum += Aij1.GetBinContent(j,xbins) * partHists2[i].GetBinContent(j) \
+	error1_2 = 0.
+	error2_2 = 0.
+	error3_2 = 0.
+        for j in range(nbins+2): 
+		sum += Aij1.GetBinContent(j,xbins) * partHists2[i].GetBinContent(j) \
                         * efficiencies1[i].GetBinContent(j)
-        if fakes1[i].GetBinContent(xbins) != 0: sum *= 1./(fakes1[i].GetBinContent(xbins))
+		error1_2 += pow(Aij1.GetBinError(j,xbins) * partHists2[i].GetBinContent(j) \
+                        * efficiencies1[i].GetBinContent(j), 2)
+		error2_2 += pow(Aij1.GetBinContent(j,xbins) * partHists2[i].GetBinError(j) \
+                        * efficiencies1[i].GetBinContent(j), 2)
+		error3_2 += pow(Aij1.GetBinContent(j,xbins) * partHists2[i].GetBinContent(j) \
+                        * efficiencies1[i].GetBinError(j), 2)
+        if fakes1[i].GetBinContent(xbins) != 0: 
+		sum *= 1./(fakes1[i].GetBinContent(xbins))
+ 		error2 = 1./pow(fakes1[i].GetBinContent(xbins),4) * ( pow(fakes1[i].GetBinError(xbins)*sum,2) \
+		+ pow(fakes1[i].GetBinContent(xbins),2) * ( error1_2 + error2_2 + error3_2 ) )
+	else: error2 = 0.
         recoFolded2[i].SetBinContent(xbins, sum)
+	recoFolded2[i].SetBinError(xbins, sqrt(error2))
   ratioPlot(recoFolded2[i], recoTruth2[i], outputClosX1 + "/" + Aij1.GetName().split("tMatrix_")[1] + ".pdf")
 
 os.system("mkdir "+outputClosX2)
@@ -187,10 +202,25 @@ for i, Aij2 in enumerate(migrationMatrices2):
   nbins = Aij2.GetXaxis().GetNbins()
   for xbins in range(nbins+2):
         sum = 0.
-        for j in range(nbins+2): sum += Aij2.GetBinContent(j,xbins) * partHists1[i].GetBinContent(j) \
+	error1_2 = 0.
+	error2_2 = 0.
+	error3_2 = 0.
+        for j in range(nbins+2): 
+		sum += Aij2.GetBinContent(j,xbins) * partHists1[i].GetBinContent(j) \
                         * efficiencies2[i].GetBinContent(j)
-        if fakes2[i].GetBinContent(xbins) != 0: sum *= 1./(fakes2[i].GetBinContent(xbins))
+		error1_2 += pow(Aij2.GetBinError(j,xbins) * partHists1[i].GetBinContent(j) \
+                        * efficiencies2[i].GetBinContent(j), 2)
+		error2_2 += pow(Aij2.GetBinContent(j,xbins) * partHists1[i].GetBinError(j) \
+                        * efficiencies2[i].GetBinContent(j), 2)
+		error3_2 += pow(Aij2.GetBinContent(j,xbins) * partHists1[i].GetBinContent(j) \
+                        * efficiencies2[i].GetBinError(j), 2)
+        if fakes2[i].GetBinContent(xbins) != 0: 
+		sum *= 1./(fakes2[i].GetBinContent(xbins))
+		error2 = 1./pow(fakes2[i].GetBinContent(xbins),4) * ( pow(fakes2[i].GetBinError(xbins)*sum,2) \
+		+ pow(fakes2[i].GetBinContent(xbins),2) * ( error1_2 + error2_2 + error3_2 ) )
+	else: error2 = 0.
         recoFolded1[i].SetBinContent(xbins, sum)
+	recoFolded1[i].SetBinError(xbins, sqrt(error2))
   ratioPlot(recoFolded1[i], recoTruth1[i], outputClosX2 + "/" + Aij2.GetName().split("tMatrix_")[1] + ".pdf")
 
 
