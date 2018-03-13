@@ -23,11 +23,24 @@
 from time import gmtime, strftime
 from ROOT import *
 import os, sys, math
+import argparse
+
+parser = argparse.ArgumentParser(description='Create the migration matrices,\
+	efficiencies and fake hits histograms.')
+parser.add_argument('textfile', metavar='args.textfile.txt', type=str, 
+	help='the text file containing a list of samples to run over')
+args = parser.parse_args()
 
 timestr = strftime("%d-%m-%y--%H.%M.%S", gmtime())
 
-inputfile = sys.argv[1]
-mtop = "mt"+sys.argv[2]
+if args.textfile.find("mt") == -1:
+  print "The input file must contain the top mass, i.e. mt172p5"
+  sys.exit()
+if args.textfile.split("mt")[1].split(".")[0].split("_")[0].find("p") == -1:
+    print 'The input file must contain the top mass under the floating form'\
+	' mt..p.., i.e. mt172p5'
+    sys.exit()
+mtop = "mt"+args.textfile.split("mt")[1].split(".")[0].split("_")[0]
 
 outputMigr = "migration_matrices_"+mtop+"_"+timestr
 outputHists= "histograms_"+mtop+"_"+timestr
@@ -571,7 +584,7 @@ shift = len(observables)
 recoLevel = TChain("nominal")
 partLevel = TChain("particleLevel")
 
-fileh = open(inputfile, 'r')
+fileh = open(args.textfile, 'r')
 for sample in fileh:
   filename = sample.split("\n")[0]
   print "Adding " + filename + " to the samples list..."
