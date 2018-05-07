@@ -1,5 +1,3 @@
-#################################################################################
-#										#
 #############################   TOP MASS UPFOLDING   ############################
 #										#
 # This script uses any ROOT file with histograms on reco/particle level, to	#
@@ -27,7 +25,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Create the migration matrices,\
 	efficiencies and fake hits histograms.')
-parser.add_argument('textfile', metavar='args.textfile.txt', type=str, 
+parser.add_argument('textfile', metavar='input_mtXXX.txt', type=str, 
 	help='the text file containing a list of samples to run over')
 args = parser.parse_args()
 
@@ -209,13 +207,16 @@ def normalize():
 			migrationMatrices[i].GetBinContent(xbins, ybins) / float(sum))
 #		migrationMatrices[i].SetBinError(xbins, ybins,
 #			migrationMatrices[i].GetBinError(xbins, ybins) / float(sum))
+#		migrationMatrices[i].SetBinError( xbins, ybins,
+#			migrationMatrices[i].GetBinError(xbins, ybins) / float(sum) 
+#			* (1 - migrationMatrices[i].GetBinError(xbins, ybins) / float(sum)) )
 		migrationMatrices[i].SetBinError( xbins, ybins,
-			migrationMatrices[i].GetBinError(xbins, ybins) / float(sum) 
-			* (1 - migrationMatrices[i].GetBinError(xbins, ybins) / float(sum)) )
+			migrationMatrices[i].GetBinContent(xbins, ybins) 
+			* (1 - migrationMatrices[i].GetBinContent(xbins, ybins)) / float(sum))
 ##		error2 = 1./pow(float(sum),2) * pow(errori[ybins],2)
 ##		for ys in range(obs[2]+2):
 ##		  error2 +=  pow(migrationMatrices[i].GetBinContent(xbins, ybins),2) / pow(float(sum),4) * pow(errori[ys],2)
-##		migrationMatrices[i].SetBinError(xbins, ybins, sqrt(error2))
+##		migrationMatrices[i].SetBinError(xbins, ybins, math.sqrt(error2))
 		
   for i,vec in enumerate(vectors):
     # Normalize each x-bin to 1
@@ -233,11 +234,11 @@ def normalize():
 #			migrationMatrices[shift+i].GetBinError(xbins, ybins) / float(sum))
 		migrationMatrices[shift+i].SetBinError( xbins, ybins,
 			migrationMatrices[shift+i].GetBinError(xbins, ybins) / float(sum) 
-			* (1 - migrationMatrices[shift+i].GetBinError(xbins, ybins) / float(sum)) )
+			* (1 - migrationMatrices[shift+i].GetBinError(xbins, ybins)) / float(sum))
 ##		error2 = 1./pow(float(sum),2) * pow(errori[ybins],2)
 ##		for ys in range(vec[2]+2):
 ##		  error2 +=  pow(migrationMatrices[shift+i].GetBinContent(xbins, ybins),2) / pow(float(sum),4) * pow(errori[ys],2)
-##		migrationMatrices[shift+i].SetBinError(xbins, ybins, sqrt(error2))
+##		migrationMatrices[shift+i].SetBinError(xbins, ybins, math.sqrt(error2))
 
 def drawMigrationMatrices():
   os.system("mkdir " + outputMigr)
@@ -276,7 +277,7 @@ def efficiencies():
     effHists[i].Divide(partHists[i])
     for bin in range(obs[2]+2):
 	e = effHists[i].GetBinContent(bin)
-	if partHists[i].GetBinContent(bin) != 0: effHists[i].SetBinError(bin,sqrt( e*(1-e)/partHists[i].GetBinContent(bin)))
+	if partHists[i].GetBinContent(bin) != 0: effHists[i].SetBinError(bin,math.sqrt( e*(1-e)/partHists[i].GetBinContent(bin)))
 	else: effHists[i].SetBinError(bin,0)
     effHists[i].GetXaxis().SetTitle(obs[5])
     effHists[i].GetYaxis().SetTitle("#epsilon_{eff} " + obs[5])
@@ -286,10 +287,14 @@ def efficiencies():
     effHists[i].Write()
   for i,vec in enumerate(vectors):
     effHists[shift+i].Divide(partHists[shift+i])
+    for bin in range(vec[2]+2):
+	e = effHists[shift+i].GetBinContent(bin)
+	if partHists[shift+i].GetBinContent(bin) != 0: effHists[shift+i].SetBinError(bin,math.sqrt( e*(1-e)/partHists[shift+i].GetBinContent(bin)))
+	else: effHists[shift+i].SetBinError(bin,0)
     effHists[shift+i].GetXaxis().SetTitle(vec[5])
     effHists[shift+i].GetYaxis().SetTitle("#epsilon_{eff} lead. " + vec[5])
     effHists[shift+i].GetYaxis().SetRangeUser(0.,1.)
-    effHists[shift+i].Draw("*H")
+    effHists[shift+i].Draw("*HE")
     c.SaveAs(outputEff + "/efficiency_" + vec[1] + "1.pdf")
     effHists[shift+i].Write()
   effFile.Close()
@@ -318,7 +323,7 @@ def effDraw():
     #eff[shift+i].GetYaxis().SetRangeUser(0.,1.)
     eff[shift+i].Draw("AP")
     gPad.Update(); 
-    graph = eff[i].GetPaintedGraph(); 
+    graph = eff[shift+i].GetPaintedGraph(); 
     graph.SetMinimum(0);
     graph.SetMaximum(1); 
     gPad.Update(); 
@@ -334,18 +339,26 @@ def fakeHits():
   c.cd()
   for i,obs in enumerate(observables):
     faccHists[i].Divide(recoHists[i])
+    for bin in range(obs[2]+2):
+	e = faccHists[i].GetBinContent(bin)
+	if recoHists[i].GetBinContent(bin) != 0: faccHists[i].SetBinError(bin,math.sqrt( e*(1-e)/recoHists[i].GetBinContent(bin)))
+	else: faccHists[i].SetBinError(bin,0)
     faccHists[i].GetXaxis().SetTitle(obs[5])
     faccHists[i].GetYaxis().SetTitle("f_{acc} " + obs[5])
     faccHists[i].GetYaxis().SetRangeUser(0.,1.)
-    faccHists[i].Draw("*H")
+    faccHists[i].Draw("*HE")
     c.SaveAs(outputFacc + "/fake_hits_rate_" + obs[1] + ".pdf")
     faccHists[i].Write()
   for i,vec in enumerate(vectors):
     faccHists[shift+i].Divide(recoHists[shift+i])
+    for bin in range(vec[2]+2):
+	e = faccHists[shift+i].GetBinContent(bin)
+	if recoHists[shift+i].GetBinContent(bin) != 0: faccHists[shift+i].SetBinError(bin,math.sqrt( e*(1-e)/recoHists[shift+i].GetBinContent(bin)))
+	else: effHists[i].SetBinError(bin,0)
     faccHists[shift+i].GetXaxis().SetTitle(vec[5])
     faccHists[shift+i].GetYaxis().SetTitle("f_{acc} lead. " + vec[5])
     faccHists[shift+i].GetYaxis().SetRangeUser(0.,1.)
-    faccHists[shift+i].Draw("*H")
+    faccHists[shift+i].Draw("*HE")
     c.SaveAs(outputFacc + "/fake_hits_rate_" + vec[1] + "1.pdf")
     faccHists[shift+i].Write()
   fakeFile.Close()
@@ -374,7 +387,7 @@ def faccDraw():
     #faccHists[shift+i].GetYaxis().SetRangeUser(0.,1.)
     facc[shift+i].Draw("AP")
     gPad.Update(); 
-    graph = eff[i].GetPaintedGraph(); 
+    graph = eff[shift+i].GetPaintedGraph(); 
     graph.SetMinimum(0);
     graph.SetMaximum(1); 
     gPad.Update(); 
@@ -401,23 +414,30 @@ def closureTests():
 	for j in range(obs[2]+2): 
 		sum += migrationMatrices[i].GetBinContent(j,xbins) * partHists[i].GetBinContent(j) \
 			* effHists[i].GetBinContent(j)
-		error1_2 += migrationMatrices[i].GetBinError(j,xbins) * partHists[i].GetBinContent(j) \
-			* effHists[i].GetBinContent(j)
-		error2_2 += migrationMatrices[i].GetBinContent(j,xbins) * partHists[i].GetBinError(j) \
-			* effHists[i].GetBinContent(j)
-		error3_2 += migrationMatrices[i].GetBinContent(j,xbins) * partHists[i].GetBinContent(j) \
-			* effHists[i].GetBinError(j)
+		error1_2 += pow(migrationMatrices[i].GetBinError(j,xbins) * partHists[i].GetBinContent(j) \
+			* effHists[i].GetBinContent(j), 2)
+		error2_2 += pow(migrationMatrices[i].GetBinContent(j,xbins) * partHists[i].GetBinError(j) \
+			* effHists[i].GetBinContent(j), 2)
+		error3_2 += pow(migrationMatrices[i].GetBinContent(j,xbins) * partHists[i].GetBinContent(j) \
+			* effHists[i].GetBinError(j), 2)
 	print "Error parts for "+obs[1]
-	print error1_2
-	print error2_2
-	print error3_2
 	if faccHists[i].GetBinContent(xbins) != 0: 
+		error2 = 1./pow(faccHists[i].GetBinContent(xbins),4) * pow(faccHists[i].GetBinError(xbins)*sum,2)
+		print faccHists[i].GetBinContent(xbins)
+		print faccHists[i].GetBinError(xbins)
+                error2 += 1./pow(faccHists[i].GetBinContent(xbins),2) * ( error1_2 + error2_2 + error3_2 )
 		sum *= 1./(faccHists[i].GetBinContent(xbins))
-		error2 = 1./pow(faccHists[i].GetBinContent(xbins),4) * ( pow(faccHists[i].GetBinError(xbins)*sum,2) \
-                	+ pow(faccHists[i].GetBinContent(xbins),2) * ( error1_2 + error2_2 + error3_2 ) )
         else: error2 = 0.
 	recoFolded[i].SetBinContent(xbins, sum)
-	recoFolded[i].SetBinError(xbins,sqrt(error2))
+	#if recoFolded[i].GetBinContent(xbins)!=0: print 1./pow(faccHists[i].GetBinContent(xbins),2)*error1_2/pow(recoFolded[i].GetBinContent(xbins),2)
+	#if recoFolded[i].GetBinContent(xbins)!=0: print 1./pow(faccHists[i].GetBinContent(xbins),2)*error2_2/pow(recoFolded[i].GetBinContent(xbins),2)
+	#if sum!=0: print error3_2/pow(sum,2)
+	#if recoFolded[i].GetBinContent(xbins)!=0: print error2/pow(recoFolded[i].GetBinContent(xbins),2)
+	print recoFolded[i].GetBinContent(xbins)
+	recoFolded[i].SetBinError(xbins,math.sqrt(error2))
+	print recoFolded[i].GetBinError(xbins)
+	#print recoFolded[i].GetBinContent(xbins)
+	#print recoFolded[i].GetBinError(xbins)
     ratioPlot(recoHists[i], recoFolded[i], outputClos + "/" + obs[1] + ".pdf")
   for i,vec in enumerate(vectors):
     for xbins in range(vec[2]+2):
@@ -428,18 +448,18 @@ def closureTests():
 	for j in range(vec[2]+2): 
 		sum += migrationMatrices[shift+i].GetBinContent(j,xbins) * partHists[shift+i].GetBinContent(j) \
 			* effHists[shift+i].GetBinContent(j)
-		error1_2 += migrationMatrices[shift+i].GetBinError(j,xbins) * partHists[shift+i].GetBinContent(j) \
-			* effHists[shift+i].GetBinContent(j)
-		error2_2 += migrationMatrices[shift+i].GetBinContent(j,xbins) * partHists[shift+i].GetBinError(j) \
-			* effHists[shift+i].GetBinContent(j)
-		error3_2 += migrationMatrices[shift+i].GetBinContent(j,xbins) * partHists[shift+i].GetBinContent(j) \
-			* effHists[shift+i].GetBinError(j)
+		error1_2 += pow(migrationMatrices[shift+i].GetBinError(j,xbins) * partHists[shift+i].GetBinContent(j) \
+			* effHists[shift+i].GetBinContent(j), 2)
+		error2_2 += pow(migrationMatrices[shift+i].GetBinContent(j,xbins) * partHists[shift+i].GetBinError(j) \
+			* effHists[shift+i].GetBinContent(j), 2)
+		error3_2 += pow(migrationMatrices[shift+i].GetBinContent(j,xbins) * partHists[shift+i].GetBinContent(j) \
+			* effHists[shift+i].GetBinError(j), 2)
 	if faccHists[shift+i].GetBinContent(xbins) != 0:
+		error2 = 1./pow(faccHists[shift+i].GetBinContent(xbins),4) * pow(faccHists[shift+i].GetBinError(xbins)*sum,2) 
+                error2 += 1./pow(faccHists[shift+i].GetBinContent(xbins),2) * ( error1_2 + error2_2 + error3_2 ) 
 		sum *= 1./(faccHists[shift+i].GetBinContent(xbins))
-		error2 = 1./pow(faccHists[shift+i].GetBinContent(xbins),4) * ( pow(faccHists[shift+i].GetBinError(xbins)*sum,2) \
-                	+ pow(faccHists[shift+i].GetBinContent(xbins),2) * ( error1_2 + error2_2 + error3_2 ) )
 	recoFolded[shift+i].SetBinContent(xbins, sum)
-	recoFolded[shift+i].SetBinError(xbins,sqrt(error2))
+	recoFolded[shift+i].SetBinError(xbins,math.sqrt(error2))
     ratioPlot(recoHists[shift+i], recoFolded[shift+i], outputClos + "/" + vec[1] + ".pdf")
     
 
@@ -451,6 +471,9 @@ observables = [
 		["Int_t",	"nbjets", 8, 0, 8, "n_{b,jets}"],
 		["Int_t",	"njets", 15, 0, 15, "n_{jets}"],
 		["Double_t",    "etdr", 20, 0, 400e+03, "E_{T}#Delta R"],
+                ["Double_t",    "pseudotop_mtop_param", 20, 0, 350e+03, "m_t"],
+                ["Double_t",    "pseudotop_mw", 20, 0, 350e+03, "m_W"],
+                ["Double_t",    "pseudotop_rbq", 20, 0, 3, "R_{bq}"],
 #                ["Double_t",    "met", 20, 0, 1100e+03, "Missing E_{T}"],
                 ["Double_t",    "met_ex", 20, -800e+03, 800e+03, "MET E_{x}"],
                 ["Double_t",    "met_ey", 20, -800e+03, 800e+03, "MET E_{y}"],

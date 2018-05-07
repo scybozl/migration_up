@@ -1,5 +1,5 @@
 from ROOT import *
-import os, sys
+import os, sys, math
 
 output = "migration_matrices_bias"
 outputEff = "efficiencies_bias"
@@ -57,18 +57,23 @@ def ratioPlot(firstHist,secondHist,title):
   hist2 = secondHist.Clone("hist2")
   c2 = TCanvas("c2","c2",800,800)
   pad1 = TPad("pad1","pad1", 0, 0.3, 1, 1.0)
-  pad1.SetBottomMargin(0) # Upper and lower plot are joined
+  pad1.SetBottomMargin(0.01) # Upper and lower plot are joined
   pad1.SetGridx()         # Vertical grid
   pad1.Draw()             # Draw the upper pad: pad1
   pad1.cd()               # pad1 becomes the current pad
-#  hist1.SetStats(0)       # No statistics on upper plot
-  hist1.Draw("ep")            # Draw hist1
-  hist2.Draw("ep same")      # Draw hist2
+  hist1.SetStats(0)       # No statistics on upper plot
+  hist1.Draw("He")            # Draw hist1
+  hist2.Draw("He same")      # Draw hist2
+  legend = TLegend(0.75,0.8,0.95,0.95);
+  legend.AddEntry(hist1,"Folded reco. level","l");
+  legend.AddEntry(hist2,"Truth reco. level","l");
+  legend.Draw();
+
   # lower plot will be in pad
   c2.cd()          # Go back to the main canvas before defining pad2
-  pad2 = TPad("pad2", "pad2", 0, 0.05, 1, 0.3)
-  pad2.SetTopMargin(0.1)
-  pad2.SetBottomMargin(0.2)
+  pad2 = TPad("pad2", "pad2", 0, 0.05, 1, 0.29)
+  pad2.SetTopMargin(0.01)
+  pad2.SetBottomMargin(0.3)
   pad2.SetGridx() # vertical grid
   pad2.Draw()
   pad2.cd()       # pad2 becomes the current pad
@@ -76,8 +81,8 @@ def ratioPlot(firstHist,secondHist,title):
   # Define the ratio plot
   h3 = hist1.Clone("h3")
   h3.SetLineColor(kBlack)
-  h3.SetMinimum(0.0)  # Define Y ..
-  h3.SetMaximum(3.0) # .. range
+  h3.SetMinimum(0.5)  # Define Y ..
+  h3.SetMaximum(1.5) # .. range
   h3.Sumw2()
   h3.SetStats(0)      # No statistics on lower plot
   h3.Divide(hist2)
@@ -100,20 +105,21 @@ def ratioPlot(firstHist,secondHist,title):
 
   h3.SetTitle("")
 
-  h3.GetYaxis().SetTitle("Ratio "+firstHist.GetTitle()+"/"+secondHist.GetTitle())
+#  h3.GetYaxis().SetTitle("Ratio "+firstHist.GetTitle()+"/"+secondHist.GetTitle())
+  h3.GetYaxis().SetTitle("Ratio folded/truth")
   h3.GetYaxis().SetNdivisions(505)
   h3.GetYaxis().SetTitleSize(20)
   h3.GetYaxis().SetTitleFont(43)
   h3.GetYaxis().SetTitleOffset(1.55)
   h3.GetYaxis().SetLabelFont(43) # Absolute font size in pixel (precision 3)
-  h3.GetYaxis().SetLabelSize(25)
+  h3.GetYaxis().SetLabelSize(15)
 
   h3.GetXaxis().SetTitle(firstHist.GetTitle().split("^{part}")[0])
-  h3.GetXaxis().SetTitleOffset(1.55)
+  h3.GetXaxis().SetTitleOffset(3.0)
   h3.GetXaxis().SetTitleSize(25)
   h3.GetXaxis().SetTitleFont(43)
   h3.GetXaxis().SetLabelFont(43) # Absolute font size in pixel (precision 3)
-  h3.GetXaxis().SetLabelSize(25)
+  h3.GetXaxis().SetLabelSize(15)
 
   c2.SaveAs(title)
   c2.Close()
@@ -189,12 +195,17 @@ for i, Aij1 in enumerate(migrationMatrices1):
 		error3_2 += pow(Aij1.GetBinContent(j,xbins) * partHists2[i].GetBinContent(j) \
                         * efficiencies1[i].GetBinError(j), 2)
         if fakes1[i].GetBinContent(xbins) != 0: 
+ 		error2 = 1./pow(fakes1[i].GetBinContent(xbins),4) * pow(fakes1[i].GetBinError(xbins)*sum,2) 
+		error2 += 1./pow(fakes1[i].GetBinContent(xbins),2) * ( error1_2 + error2_2 + error3_2 ) 
 		sum *= 1./(fakes1[i].GetBinContent(xbins))
- 		error2 = 1./pow(fakes1[i].GetBinContent(xbins),4) * ( pow(fakes1[i].GetBinError(xbins)*sum,2) \
-		+ pow(fakes1[i].GetBinContent(xbins),2) * ( error1_2 + error2_2 + error3_2 ) )
 	else: error2 = 0.
         recoFolded2[i].SetBinContent(xbins, sum)
-	recoFolded2[i].SetBinError(xbins, sqrt(error2))
+	recoFolded2[i].SetBinError(xbins, math.sqrt(error2))
+	print error1_2
+	print error2_2
+	print error3_2
+	print sum
+	print math.sqrt(error2)
   ratioPlot(recoFolded2[i], recoTruth2[i], outputClosX1 + "/" + Aij1.GetName().split("tMatrix_")[1] + ".pdf")
 
 os.system("mkdir "+outputClosX2)
@@ -215,12 +226,12 @@ for i, Aij2 in enumerate(migrationMatrices2):
 		error3_2 += pow(Aij2.GetBinContent(j,xbins) * partHists1[i].GetBinContent(j) \
                         * efficiencies2[i].GetBinError(j), 2)
         if fakes2[i].GetBinContent(xbins) != 0: 
+		error2 = 1./pow(fakes2[i].GetBinContent(xbins),4) * pow(fakes2[i].GetBinError(xbins)*sum,2)
+		error2 += 1./pow(fakes2[i].GetBinContent(xbins),2) * ( error1_2 + error2_2 + error3_2 ) 
 		sum *= 1./(fakes2[i].GetBinContent(xbins))
-		error2 = 1./pow(fakes2[i].GetBinContent(xbins),4) * ( pow(fakes2[i].GetBinError(xbins)*sum,2) \
-		+ pow(fakes2[i].GetBinContent(xbins),2) * ( error1_2 + error2_2 + error3_2 ) )
 	else: error2 = 0.
         recoFolded1[i].SetBinContent(xbins, sum)
-	recoFolded1[i].SetBinError(xbins, sqrt(error2))
+	recoFolded1[i].SetBinError(xbins, math.sqrt(error2))
   ratioPlot(recoFolded1[i], recoTruth1[i], outputClosX2 + "/" + Aij2.GetName().split("tMatrix_")[1] + ".pdf")
 
 
