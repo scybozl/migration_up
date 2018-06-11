@@ -1,3 +1,10 @@
+
+closure_tests_*
+efficiencies_*
+migration_matrices*
+fake*
+histograms_*
+
 setup.sh
 out*
 output*.root
