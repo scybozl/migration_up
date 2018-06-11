@@ -1,0 +1,3 @@
+/afs/cern.ch/work/l/lscyboz/public/TopAnalysis/user.lscyboz.410494.PowhegPythia8EvtGen.DAOD_TOPQ1.e5965_a766_a821_r7676_p2952.MTOP170p0_output.root/user.lscyboz.14041425._000001.output.root
+/afs/cern.ch/work/l/lscyboz/public/TopAnalysis/user.lscyboz.410494.PowhegPythia8EvtGen.DAOD_TOPQ1.e5965_a766_a821_r7676_p2952.MTOP170p0_output.root/user.lscyboz.14041425._000003.output.root
+/afs/cern.ch/work/l/lscyboz/public/TopAnalysis/user.lscyboz.410494.PowhegPythia8EvtGen.DAOD_TOPQ1.e5965_a766_a821_r7676_p2952.MTOP170p0_output.root/user.lscyboz.14041425._000002.output.root
