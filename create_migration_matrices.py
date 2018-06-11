@@ -49,8 +49,9 @@ outputClos = "closure_tests_"+mtop+"_"+timestr
 gStyle.SetOptStat("neou")
 gStyle.SetPaintTextFormat(".4f")
 
-def ratioPlot(firstHist,secondHist,title):
+def ratioPlot(firstHist,secondHist,title,leg=0):
   hist1 = firstHist.Clone("hist1")
+  hist1.SetStats(0)
   hist2 = secondHist.Clone("hist2")
   c2 = TCanvas("c2","c2",800,800)
   pad1 = TPad("pad1","pad1", 0, 0.3, 1, 1.0)
@@ -59,8 +60,16 @@ def ratioPlot(firstHist,secondHist,title):
   pad1.Draw()             # Draw the upper pad: pad1
   pad1.cd()               # pad1 becomes the current pad
 #  hist1.SetStats(0)       # No statistics on upper plot
-  hist1.Draw("ep")            # Draw hist1
-  hist2.Draw("ep same")      # Draw hist2
+  hist1.Draw("eh")            # Draw hist1
+  hist2.Draw("eh same")      # Draw hist2
+  legend = TLegend(0.75,0.8,0.95,0.95);
+  if leg == 0:
+    legend.AddEntry(hist1,"Particle level","l");
+    legend.AddEntry(hist2,"Reco level","l");
+  elif leg == 1:
+    legend.AddEntry(hist1,"Truth reco level","l");
+    legend.AddEntry(hist2,"Folded reco level","l");
+  legend.Draw();
   # lower plot will be in pad
   c2.cd()          # Go back to the main canvas before defining pad2
   pad2 = TPad("pad2", "pad2", 0, 0.05, 1, 0.3)
@@ -124,41 +133,41 @@ def populateHistsUp(reco, obsR, part, obsP):
     reco.GetEntry(i)
     for j,obs in enumerate(observables):
 	y = obs[1] + "_reco"
-	recoHists[j].Fill(getattr(obsR,y))
+	recoHists[j].Fill(getattr(obsR,y),reco.weight_mc)
     for j,vec in enumerate(vectors):
 	y = vec[1] + "_reco"
-	if globals()[y].size() > 0: recoHists[shift+j].Fill(globals()[y][0])
+	if globals()[y].size() > 0: recoHists[shift+j].Fill(globals()[y][0],reco.weight_mc)
     # Check if the event only exists at reco level
     if part.GetEntryWithIndex(obsR.runNumber, obsR.eventNumber) < 0:
 	recoOnly += 1
 	for j,obs in enumerate(observables):
 	  y = obs[1] + "_reco"
-	  facc[j].Fill(kFALSE,getattr(obsR,y))
+	  facc[j].FillWeighted(kFALSE,reco.weight_mc,getattr(obsR,y))
 	for j,vec in enumerate(vectors):
   	  y = vec[1] + "_reco"
-	  if globals()[y].size() > 0:  facc[shift+j].Fill(kFALSE,globals()[y][0])
+	  if globals()[y].size() > 0:  facc[shift+j].FillWeighted(kFALSE,reco.weight_mc,globals()[y][0])
     # If not, it was matched . fill out the migration matrices
     else:
 	# Fill the reco/particle histograms, and the migration matrices
 	for j,obs in enumerate(observables):
 	  x = obs[1] + "_part"
 	  y = obs[1] + "_reco"
-	  effHists[j].Fill(getattr(obsP,x))
-	  faccHists[j].Fill(getattr(obsR,y))
-	  eff[j].Fill(kTRUE,getattr(obsP,x))
-	  facc[j].Fill(kTRUE,getattr(obsR,y))
-	  migrationMatrices[j].Fill(getattr(obsP,x), getattr(obsR,y))
+	  effHists[j].Fill(getattr(obsP,x),part.weight_mc)
+	  faccHists[j].Fill(getattr(obsR,y),reco.weight_mc)
+	  eff[j].FillWeighted(kTRUE,part.weight_mc,getattr(obsP,x))
+	  facc[j].FillWeighted(kTRUE,reco.weight_mc,getattr(obsR,y))
+	  migrationMatrices[j].Fill(getattr(obsP,x), getattr(obsR,y),part.weight_mc)
 	for j,vec in enumerate(vectors):
 	  x = vec[1] + "_part"
 	  y = vec[1] + "_reco"
 	  if globals()[x].size() > 0: 
-	    effHists[shift+j].Fill(globals()[x][0])
-	    eff[shift+j].Fill(kTRUE,globals()[x][0])
+	    effHists[shift+j].Fill(globals()[x][0],part.weight_mc)
+	    eff[shift+j].FillWeighted(kTRUE,part.weight_mc,globals()[x][0])
 	  if globals()[y].size() > 0: 
-	    faccHists[shift+j].Fill(globals()[y][0])
-	    facc[shift+j].Fill(kTRUE,globals()[y][0])
+	    faccHists[shift+j].Fill(globals()[y][0],reco.weight_mc)
+	    facc[shift+j].FillWeighted(kTRUE,reco.weight_mc,globals()[y][0])
 	  if globals()[x].size() > 0 and globals()[y].size() > 0:
-	    migrationMatrices[shift+j].Fill(globals()[x][0],globals()[y][0])
+	    migrationMatrices[shift+j].Fill(globals()[x][0],globals()[y][0],part.weight_mc)
   for j,obs in enumerate(observables):
     recoHists[j].Write()
   for j,vec in enumerate(vectors):
@@ -174,18 +183,18 @@ def populateHistsDown(reco, obsR, part, obsP):
     part.GetEntry(i)
     for j,obs in enumerate(observables):
         x = obs[1] + "_part"
-        partHists[j].Fill(getattr(obsP,x))	
+        partHists[j].Fill(getattr(obsP,x),part.weight_mc)
     for j,vec in enumerate(vectors):
         x = vec[1] + "_part"
-        if globals()[x].size() > 0: partHists[shift+j].Fill(globals()[x][0])
+        if globals()[x].size() > 0: partHists[shift+j].Fill(globals()[x][0],part.weight_mc)
     if reco.GetEntryWithIndex(obsP.runNumber, obsP.eventNumber) < 0: 
 	partOnly += 1
 	for j,obs in enumerate(observables):
           x = obs[1] + "_part"
-          eff[j].Fill(kFALSE,getattr(obsP,x))	
+          eff[j].FillWeighted(kFALSE,part.weight_mc,getattr(obsP,x))	
 	for j,vec in enumerate(vectors):
           x = vec[1] + "_part"
-          if globals()[x].size() > 0: eff[shift+j].Fill(kFALSE,globals()[x][0])
+          if globals()[x].size() > 0: eff[shift+j].FillWeighted(kFALSE,part.weight_mc,globals()[x][0])
   for j,obs in enumerate(observables):
     partHists[j].Write()
   for j,vec in enumerate(vectors):
@@ -210,9 +219,10 @@ def normalize():
 #		migrationMatrices[i].SetBinError( xbins, ybins,
 #			migrationMatrices[i].GetBinError(xbins, ybins) / float(sum) 
 #			* (1 - migrationMatrices[i].GetBinError(xbins, ybins) / float(sum)) )
-		migrationMatrices[i].SetBinError( xbins, ybins,
-			migrationMatrices[i].GetBinContent(xbins, ybins) 
-			* (1 - migrationMatrices[i].GetBinContent(xbins, ybins)) / float(sum))
+		e = migrationMatrices[i].GetBinContent(xbins,ybins)
+		if e > 0 and e < 1:
+		        migrationMatrices[i].SetBinError( xbins, ybins,
+			math.sqrt( e*(1-e) / float(sum)))
 ##		error2 = 1./pow(float(sum),2) * pow(errori[ybins],2)
 ##		for ys in range(obs[2]+2):
 ##		  error2 +=  pow(migrationMatrices[i].GetBinContent(xbins, ybins),2) / pow(float(sum),4) * pow(errori[ys],2)
@@ -232,9 +242,10 @@ def normalize():
 			migrationMatrices[shift+i].GetBinContent(xbins, ybins) / float(sum))
 #		migrationMatrices[shift+i].SetBinError(xbins, ybins,
 #			migrationMatrices[shift+i].GetBinError(xbins, ybins) / float(sum))
-		migrationMatrices[shift+i].SetBinError( xbins, ybins,
-			migrationMatrices[shift+i].GetBinError(xbins, ybins) / float(sum) 
-			* (1 - migrationMatrices[shift+i].GetBinError(xbins, ybins)) / float(sum))
+		e = migrationMatrices[shift+i].GetBinContent(xbins, ybins)
+		if e > 0 and e < 1:
+			migrationMatrices[shift+i].SetBinError( xbins, ybins,
+			math.sqrt( e*(1-e) / float(sum)))
 ##		error2 = 1./pow(float(sum),2) * pow(errori[ybins],2)
 ##		for ys in range(vec[2]+2):
 ##		  error2 +=  pow(migrationMatrices[shift+i].GetBinContent(xbins, ybins),2) / pow(float(sum),4) * pow(errori[ys],2)
@@ -274,10 +285,12 @@ def efficiencies():
   c = TCanvas("c","c",900,900)
   c.cd()
   for i,obs in enumerate(observables):
+    effHists[i].Sumw2()
     effHists[i].Divide(partHists[i])
     for bin in range(obs[2]+2):
 	e = effHists[i].GetBinContent(bin)
-	if partHists[i].GetBinContent(bin) != 0: effHists[i].SetBinError(bin,math.sqrt( e*(1-e)/partHists[i].GetBinContent(bin)))
+	print partHists[i].GetBinContent(bin), e
+	if partHists[i].GetBinContent(bin) > 0 and e > 0: effHists[i].SetBinError(bin,math.sqrt( e*(1-e)/partHists[i].GetBinContent(bin)))
 	else: effHists[i].SetBinError(bin,0)
     effHists[i].GetXaxis().SetTitle(obs[5])
     effHists[i].GetYaxis().SetTitle("#epsilon_{eff} " + obs[5])
@@ -286,10 +299,12 @@ def efficiencies():
     c.SaveAs(outputEff + "/efficiency_" + obs[1] + ".pdf")
     effHists[i].Write()
   for i,vec in enumerate(vectors):
+    effHists[shift+i].Sumw2()
     effHists[shift+i].Divide(partHists[shift+i])
     for bin in range(vec[2]+2):
 	e = effHists[shift+i].GetBinContent(bin)
-	if partHists[shift+i].GetBinContent(bin) != 0: effHists[shift+i].SetBinError(bin,math.sqrt( e*(1-e)/partHists[shift+i].GetBinContent(bin)))
+	print partHists[i].GetBinContent(bin), e
+	if partHists[shift+i].GetBinContent(bin) > 0 and e > 0 and e < 1: effHists[shift+i].SetBinError(bin,math.sqrt( e*(1-e)/partHists[shift+i].GetBinContent(bin)))
 	else: effHists[shift+i].SetBinError(bin,0)
     effHists[shift+i].GetXaxis().SetTitle(vec[5])
     effHists[shift+i].GetYaxis().SetTitle("#epsilon_{eff} lead. " + vec[5])
@@ -338,10 +353,11 @@ def fakeHits():
   c = TCanvas("c","c",900,900)
   c.cd()
   for i,obs in enumerate(observables):
+    faccHists[i].Sumw2()
     faccHists[i].Divide(recoHists[i])
     for bin in range(obs[2]+2):
 	e = faccHists[i].GetBinContent(bin)
-	if recoHists[i].GetBinContent(bin) != 0: faccHists[i].SetBinError(bin,math.sqrt( e*(1-e)/recoHists[i].GetBinContent(bin)))
+	if recoHists[i].GetBinContent(bin) > 0 and e > 0 and e < 1: faccHists[i].SetBinError(bin,math.sqrt( e*(1-e)/recoHists[i].GetBinContent(bin)))
 	else: faccHists[i].SetBinError(bin,0)
     faccHists[i].GetXaxis().SetTitle(obs[5])
     faccHists[i].GetYaxis().SetTitle("f_{acc} " + obs[5])
@@ -350,10 +366,11 @@ def fakeHits():
     c.SaveAs(outputFacc + "/fake_hits_rate_" + obs[1] + ".pdf")
     faccHists[i].Write()
   for i,vec in enumerate(vectors):
+    faccHists[shift+i].Sumw2()
     faccHists[shift+i].Divide(recoHists[shift+i])
     for bin in range(vec[2]+2):
 	e = faccHists[shift+i].GetBinContent(bin)
-	if recoHists[shift+i].GetBinContent(bin) != 0: faccHists[shift+i].SetBinError(bin,math.sqrt( e*(1-e)/recoHists[shift+i].GetBinContent(bin)))
+	if recoHists[shift+i].GetBinContent(bin) > 0 and e > 0 and e < 1: faccHists[shift+i].SetBinError(bin,math.sqrt( e*(1-e)/recoHists[shift+i].GetBinContent(bin)))
 	else: effHists[i].SetBinError(bin,0)
     faccHists[shift+i].GetXaxis().SetTitle(vec[5])
     faccHists[shift+i].GetYaxis().SetTitle("f_{acc} lead. " + vec[5])
@@ -399,9 +416,9 @@ def faccDraw():
 def drawHists():
   os.system("mkdir " + outputHists)
   for i,obs in enumerate(observables):
-    ratioPlot(partHists[i], recoHists[i], outputHists + "/" + obs[1] + ".pdf")
+    ratioPlot(partHists[i], recoHists[i], outputHists + "/" + obs[1] + ".pdf",0)
   for i,vec in enumerate(vectors):
-    ratioPlot(partHists[shift+i], recoHists[shift+i], outputHists + "/" + vec[1] + "1.pdf")
+    ratioPlot(partHists[shift+i], recoHists[shift+i], outputHists + "/" + vec[1] + "1.pdf",0)
 
 def closureTests():
   os.system("mkdir " + outputClos)
@@ -438,7 +455,7 @@ def closureTests():
 	print recoFolded[i].GetBinError(xbins)
 	#print recoFolded[i].GetBinContent(xbins)
 	#print recoFolded[i].GetBinError(xbins)
-    ratioPlot(recoHists[i], recoFolded[i], outputClos + "/" + obs[1] + ".pdf")
+    ratioPlot(recoHists[i], recoFolded[i], outputClos + "/" + obs[1] + ".pdf",1)
   for i,vec in enumerate(vectors):
     for xbins in range(vec[2]+2):
 	sum = 0.
@@ -460,7 +477,7 @@ def closureTests():
 		sum *= 1./(faccHists[shift+i].GetBinContent(xbins))
 	recoFolded[shift+i].SetBinContent(xbins, sum)
 	recoFolded[shift+i].SetBinError(xbins,math.sqrt(error2))
-    ratioPlot(recoHists[shift+i], recoFolded[shift+i], outputClos + "/" + vec[1] + ".pdf")
+    ratioPlot(recoHists[shift+i], recoFolded[shift+i], outputClos + "/" + vec[1] + ".pdf",1)
     
 
 recoOnly = 0
@@ -580,7 +597,7 @@ for obs in observables:
   effHists.append( TH1F(epsilon, "#epsilon_{epsilon} "+obsName, nBins, xMin, xMax ) )
   faccHists.append( TH1F(fake, "f_{acc} "+obsName, nBins, xMin, xMax ) )
   eff.append( TEfficiency(effName, "#epsilon_{epsilon} "+obsName, nBins, xMin, xMax ) )
-  facc.append( TEfficiency(faccName, "f_{acc} "+obsName, nBins, xMin, xMax ) ) 
+  facc.append( TEfficiency(faccName, "f_{acc} "+obsName, nBins, xMin, xMax ) )
 
 for vec in vectors:
   mig = "tMatrix_lead_" + vec[1]
