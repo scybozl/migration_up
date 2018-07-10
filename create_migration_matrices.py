@@ -1,3 +1,12 @@
+from time import gmtime, strftime
+from ROOT import *
+import os, sys, math
+import glob
+from argparse import ArgumentParser, FileType
+from ratio_plot import ratioPlot
+
+print """ 
+
 #############################   TOP MASS UPFOLDING   ############################
 #										#
 # This script uses any ROOT file with histograms on reco/particle level, to	#
@@ -18,111 +27,94 @@
 #										#
 #################################################################################
 
-from time import gmtime, strftime
-from ROOT import *
-import os, sys, math
-import argparse
+"""
 
-parser = argparse.ArgumentParser(description='Create the migration matrices,\
+class colors:
+  HEADER = '\033[95m'
+  OKBLUE = '\033[94m'
+  OKGREEN = '\033[92m'
+  WARNING = '\033[93m'
+  FAIL = '\033[91m'
+  ENDC = '\033[0m'
+  BOLD = '\033[1m'
+  UNDERLINE = '\033[4m'
+
+def ERROR(msg):
+  print colors.FAIL + "ERROR: " + colors.ENDC + msg
+  print "Exiting..."
+  sys.exit()
+
+def WARNING(msg):
+# raw_input returns the empty string for "enter"
+  print colors.WARNING + "WARNING: " + colors.ENDC + msg
+
+parser = ArgumentParser(description='Create the migration matrices,\
 	efficiencies and fake hits histograms.')
-parser.add_argument('textfile', metavar='input_mtXXX.txt', type=str, 
-	help='the text file containing a list of samples to run over')
+parser.add_argument('textfile', metavar='input_mtXXX_DSID_xxxxxx_(FS).txt', type=str, 
+	help='the text file containing a list of samples to run over (has to\
+	be a simulated sample)')
+parser.add_argument("-N", "--numberOfEvents", required=False, type=str, \
+	dest="EVTNUM", default="-99", help="Number of events in the sample for bookkeeping")
+parser.add_argument("-S", "--stats", required=False, type=str, \
+	dest="STAT", default="gaussian", help="Multinomial efficiencies/fakes treatment \
+	for comparison (default=gaussian) \n" + colors.WARNING + \
+	"Beware: these uncertainties are not propagated, just plotted" + colors.ENDC)
 args = parser.parse_args()
 
 timestr = strftime("%d-%m-%y--%H.%M.%S", gmtime())
+evtNum = args.EVTNUM
+stat   = args.STAT
 
-if args.textfile.find("mt") == -1:
-  print "The input file must contain the top mass, i.e. mt172p5"
-  sys.exit()
-if args.textfile.split("mt")[1].split(".")[0].split("_")[0].find("p") == -1:
-    print 'The input file must contain the top mass under the floating form'\
-	' mt..p.., i.e. mt172p5'
+## Top mass must be explicitly stated in the filename to avoid confusion
+
+if not os.path.exists(args.textfile):
+  ERROR('The input file containing the samples location could not be found')
+if args.textfile.find("mt_") == -1:
+  ERROR('The input file must contain the top mass under the form \'mt_172p5\'')
+if args.textfile.split("mt_")[1].split(".")[0].split("_")[0].find("p") == -1:
+  ERROR('The input file must contain the top mass under the form \'mt_XXXpXX\'')
+mtop = args.textfile.split("mt_")[1].split("_")[0]
+
+## DSID
+
+if args.textfile.find("DSID") == -1:
+  ERROR('The input file must contain the sample DSID, i.e. \'DSID_xxxxxx\'')
+DSID = args.textfile.split("DSID_")[1].split("_")[0]
+
+if args.textfile.find("AFII") == -1 and args.textfile.find("FS") == -1:
+  ERROR('The input file must contain the simulation description, AFII or FS')
+sim = "AFII" if args.textfile.find("AFII") != -1 else "FS"
+
+## Naming convention
+
+identifier = "DSID_"+DSID+"_mt_"+mtop+"_"+sim
+if evtNum!="-99":  identifier += "_"+evtNum
+
+outputMigr = "Aij_"+identifier
+outputEff  = "eps_"+identifier
+outputFacc = "fak_"+identifier
+outputHists= "histograms_"+identifier
+outputClos = "closureTests_"+identifier
+
+if glob.glob("*"+identifier):
+  WARNING('The identifier for this sample already exists in this folder. Are you\
+  sure you want to overwrite the plots / root files? [y/n]')
+  yes = ['yes','y', 'ye', '']
+  no = ['no','n']
+  choice = raw_input().lower()
+  if choice in yes:
+    os.system("rm -r *"+identifier)
+  elif choice in no:
+    print "Exiting..."
     sys.exit()
-mtop = "mt"+args.textfile.split("mt")[1].split(".")[0].split("_")[0]
-
-outputMigr = "migration_matrices_"+mtop+"_"+timestr
-outputHists= "histograms_"+mtop+"_"+timestr
-outputEff  = "efficiencies_"+mtop+"_"+timestr
-outputFacc = "fake_hits_rates_"+mtop+"_"+timestr
-outputClos = "closure_tests_"+mtop+"_"+timestr
+  else:
+    sys.stdout.write("Please respond with 'yes' or 'no'")
+    print "Exiting..."
+    sys.exit()
 
 gStyle.SetOptStat("neou")
 gStyle.SetPaintTextFormat(".4f")
-
-def ratioPlot(firstHist,secondHist,title,leg=0):
-  hist1 = firstHist.Clone("hist1")
-  hist1.SetStats(0)
-  hist2 = secondHist.Clone("hist2")
-  c2 = TCanvas("c2","c2",800,800)
-  pad1 = TPad("pad1","pad1", 0, 0.3, 1, 1.0)
-  pad1.SetBottomMargin(0) # Upper and lower plot are joined
-  pad1.SetGridx()         # Vertical grid
-  pad1.Draw()             # Draw the upper pad: pad1
-  pad1.cd()               # pad1 becomes the current pad
-#  hist1.SetStats(0)       # No statistics on upper plot
-  hist1.Draw("eh")            # Draw hist1
-  hist2.Draw("eh same")      # Draw hist2
-  legend = TLegend(0.75,0.8,0.95,0.95);
-  if leg == 0:
-    legend.AddEntry(hist1,"Particle level","l");
-    legend.AddEntry(hist2,"Reco level","l");
-  elif leg == 1:
-    legend.AddEntry(hist1,"Truth reco level","l");
-    legend.AddEntry(hist2,"Folded reco level","l");
-  legend.Draw();
-  # lower plot will be in pad
-  c2.cd()          # Go back to the main canvas before defining pad2
-  pad2 = TPad("pad2", "pad2", 0, 0.05, 1, 0.3)
-  pad2.SetTopMargin(0.1)
-  pad2.SetBottomMargin(0.2)
-  pad2.SetGridx() # vertical grid
-  pad2.Draw()
-  pad2.cd()       # pad2 becomes the current pad
-
-  # Define the ratio plot
-  h3 = hist1.Clone("h3")
-  h3.SetLineColor(kBlack)
-  h3.SetMinimum(0.0)  # Define Y ..
-  h3.SetMaximum(3.0) # .. range
-  h3.Sumw2()
-  h3.SetStats(0)      # No statistics on lower plot
-  h3.Divide(hist2)
-  h3.SetMarkerStyle(21)
-  h3.Draw("ep")       # Draw the ratio plot
-
-  hist1.SetTitle("")
-  hist1.SetLineColor(kBlue+1)
-  hist1.SetLineWidth(2)
-
-  hist1.GetYaxis().SetTitle("N_{events}")
-  hist1.GetYaxis().SetTitleSize(20)
-  hist1.GetYaxis().SetTitleFont(43)
-  hist1.GetYaxis().SetTitleOffset(1.55)
-  hist1.GetXaxis().SetTitleSize(0)
-  hist1.GetXaxis().SetLabelSize(0)
-
-  hist2.SetLineColor(kRed)
-  hist2.SetLineWidth(2)
-
-  h3.SetTitle("")
-
-  h3.GetYaxis().SetTitle("Ratio "+firstHist.GetTitle()+"/"+secondHist.GetTitle())
-  h3.GetYaxis().SetNdivisions(505)
-  h3.GetYaxis().SetTitleSize(20)
-  h3.GetYaxis().SetTitleFont(43)
-  h3.GetYaxis().SetTitleOffset(1.55)
-  h3.GetYaxis().SetLabelFont(43) # Absolute font size in pixel (precision 3)
-  h3.GetYaxis().SetLabelSize(25)
-
-  h3.GetXaxis().SetTitle(firstHist.GetTitle().split("^{part}")[0])
-  h3.GetXaxis().SetTitleOffset(1.55)
-  h3.GetXaxis().SetTitleSize(25)
-  h3.GetXaxis().SetTitleFont(43)
-  h3.GetXaxis().SetLabelFont(43) # Absolute font size in pixel (precision 3)
-  h3.GetXaxis().SetLabelSize(25)
-
-  c2.SaveAs(title)
-  c2.Close()
+#gErrorIgnoreLevel = kInfo
 
 def populateHistsUp(reco, obsR, part, obsP):
   os.system("mkdir " + outputHists)
