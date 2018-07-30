@@ -3,7 +3,7 @@ from ROOT import *
 import os, sys, math
 import glob
 from argparse import ArgumentParser, FileType
-from ratio_plot import ratioPlot
+from ratio_plot_ATLAS import ratioPlotATLAS
 
 print """ 
 
@@ -85,10 +85,15 @@ if args.textfile.find("AFII") == -1 and args.textfile.find("FS") == -1:
   ERROR('The input file must contain the simulation description, AFII or FS')
 sim = "AFII" if args.textfile.find("AFII") != -1 else "FS"
 
+if args.textfile.find("tag") != -1:
+  tag = args.textfile.split("tag_")[1].split("_")[0]
+else: tag = ""
+
 ## Naming convention
 
 identifier = "DSID_"+DSID+"_mt_"+mtop+"_"+sim
 if evtNum!="-99":  identifier += "_"+evtNum
+if tag != "": identifier += "_"+tag
 
 outputMigr = "Aij_"+identifier
 outputEff  = "eps_"+identifier
@@ -408,9 +413,9 @@ def faccDraw():
 def drawHists():
   os.system("mkdir " + outputHists)
   for i,obs in enumerate(observables):
-    ratioPlot(partHists[i], recoHists[i], outputHists + "/" + obs[1] + ".pdf",0)
+    ratioPlotATLAS(partHists[i], recoHists[i], outputHists + "/" + obs[1] + ".pdf",0)
   for i,vec in enumerate(vectors):
-    ratioPlot(partHists[shift+i], recoHists[shift+i], outputHists + "/" + vec[1] + "1.pdf",0)
+    ratioPlotATLAS(partHists[shift+i], recoHists[shift+i], outputHists + "/" + vec[1] + "1.pdf",0)
 
 def closureTests():
   os.system("mkdir " + outputClos)
@@ -447,7 +452,7 @@ def closureTests():
 	print recoFolded[i].GetBinError(xbins)
 	#print recoFolded[i].GetBinContent(xbins)
 	#print recoFolded[i].GetBinError(xbins)
-    ratioPlot(recoHists[i], recoFolded[i], outputClos + "/" + obs[1] + ".pdf",1)
+    ratioPlotATLAS(recoHists[i], recoFolded[i], outputClos + "/" + obs[1] + ".pdf",1)
   for i,vec in enumerate(vectors):
     for xbins in range(vec[2]+2):
 	sum = 0.
@@ -469,7 +474,7 @@ def closureTests():
 		sum *= 1./(faccHists[shift+i].GetBinContent(xbins))
 	recoFolded[shift+i].SetBinContent(xbins, sum)
 	recoFolded[shift+i].SetBinError(xbins,math.sqrt(error2))
-    ratioPlot(recoHists[shift+i], recoFolded[shift+i], outputClos + "/" + vec[1] + ".pdf",1)
+    ratioPlotATLAS(recoHists[shift+i], recoFolded[shift+i], outputClos + "/" + vec[1] + ".pdf",1)
     
 
 recoOnly = 0
