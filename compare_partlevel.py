@@ -91,5 +91,5 @@ for i, Aij1 in enumerate(migrationMatrices1):
   n2=partHists2[i].Integral()
   partHists2[i].Sumw2(kTRUE)
   partHists2[i].Scale(1./n2)
-  ratioPlotATLAS(partHists1[i], partHists2[i], outputClosX1 + "/" + Aij1.GetName().split("tMatrix_")[1] + ".pdf", 1, 1)
+  ratioPlotATLAS(partHists1[i], partHists2[i], outputClosX1 + "/" + Aij1.GetName().split("tMatrix_")[1], 1, 1)
 

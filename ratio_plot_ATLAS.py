@@ -17,8 +17,8 @@ def ratioPlotATLAS(firstHist,secondHist,title,leg=0,particle=1):
     ph.setStyle(24)
     lh = layout_helper()
     # Prepare canvas and pads
-    pads = ph.canvasAndPads(False)
-    #pads[0].SetLogx()
+    pads = ph.canvasAndPads(True)
+    #pads[0].SetLogy()
     #pads[1].SetLogy()
     #pads[1].SetLogx()
     # ----------------------
@@ -29,7 +29,7 @@ def ratioPlotATLAS(firstHist,secondHist,title,leg=0,particle=1):
     lh.resetAttributes(pad = pads[0], plots = plots
     		       , xMin = None
     		       , xMax = None
-                       , yMin = 0
+                       , yMin = None
                        , legendNCol = 1
                        , letAtlasLabelFloat = False, yMaxOffset = 0.05, yMinOffset = 0.05
                        , textPlotsDist = 0.04999
@@ -93,7 +93,7 @@ def ratioPlotATLAS(firstHist,secondHist,title,leg=0,particle=1):
     hOne.Draw("E2")
     hRat.Draw("same")
     line.Draw()
-    pads[len(pads) - 1].SaveAs(title)
+    pads[len(pads) - 1].SaveAs(title + "_log.pdf")
     lh.pad.RedrawAxis()
     # Terminate the session
     lh.clearStorage()

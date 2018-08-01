@@ -1728,7 +1728,7 @@ class layout_helper(TH1_helper):
                 h = self.addUncertainty(h, -1.)
             dummy, yMin = self.getMaxAndMin(h, xMin, xMax)
             if self.pad.GetLogy():
-                yMin = self.getNonZeroMin(h, xMin, xMax)
+                yMin = self.getNonZeroMin(h, None, None)
             if yMin is None:
                 return yMax, self.yMaxDyn
             return yMax, yMin

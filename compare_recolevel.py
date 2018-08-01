@@ -186,5 +186,5 @@ for i, Aij1 in enumerate(migrationMatrices1):
   n2=recoTruth1[i].Integral()
   recoTruth1[i].Sumw2(kTRUE)
   recoTruth1[i].Scale(1./n2)
-  ratioPlotATLAS(recoFolded2[i], recoTruth1[i], outputClosX1 + "/" + Aij1.GetName().split("tMatrix_")[1] + ".pdf", 1, 0)
+  ratioPlotATLAS(recoFolded2[i], recoTruth1[i], outputClosX1 + "/" + Aij1.GetName().split("tMatrix_")[1], 1, 0)
 

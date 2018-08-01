@@ -66,6 +66,10 @@ evtNum = args.EVTNUM
 stat   = args.STAT
 
 ## Top mass must be explicitly stated in the filename to avoid confusion
+## For the moment, to force a correct bookkeeping, DSID's, m_t, and so on
+## have to be explicitly stated in the input filename
+
+## Not all production samples have metadata or referenced setup info
 
 if not os.path.exists(args.textfile):
   ERROR('The input file containing the samples location could not be found')
