@@ -1,4 +1,4 @@
-from ROOT import gROOT, TH1, TEfficiency, TTree
+from ROOT import gROOT, TH1, TEfficiency, TTree, TChain
 
 class observable:
 
@@ -9,8 +9,9 @@ class observable:
         xmax    = 0
         latex   = ''
 
-        def __init__(self, name, nbins, xmin, xmax, latex):
+        def __init__(self, typ, name, nbins, xmin, xmax, latex):
 
+	    self.typ	 = typ
             self.name    = name
             self.nbins   = nbins
             self.xmin    = xmin
@@ -37,7 +38,7 @@ class vector_observable:
 
 class migration_matrix:
 
-	obs	= observable()
+	obs	= None
 	migr	= None
 
 	def __init__(self, observable):
@@ -49,7 +50,7 @@ class migration_matrix:
 
 class efficiency:
 
-        obs     = observable()
+        obs     = None
         eff     = None
 
         def __init__(self, observable):
@@ -60,7 +61,7 @@ class efficiency:
 
 class efficiency_binomial:
 
-        obs     = observable()
+        obs     = None
         eff     = None
 
         def __init__(self, observable):
@@ -71,8 +72,8 @@ class efficiency_binomial:
 
 class fake_rates:
 
-        self.obs     = observable()
-        self.facc    = None
+        obs     = None
+        facc    = None
 
         def __init__(self, observable):
 
@@ -82,13 +83,24 @@ class fake_rates:
 
 class fake_rates_binomial:
 
-        obs     = observable()
+        obs     = None
         eff     = None
 
         def __init__(self, observable):
 
             self.obs  = observable
             self.eff  = TEfficiency( 'tFacc_' + obs.name, 'f_{acc} ' + obs.name, 
+                                 obs.nbins, obs.xmin, obs.xmax )
+
+class reco_hist:
+
+        obs       = None
+        reco_hist = None
+
+        def __init__(self, observable):
+
+            self.obs	    = observable
+            self.reco_hist  = TH1F( 'tReco_' + obs.name, obs.name + '^{reco}',
                                  obs.nbins, obs.xmin, obs.xmax )
 
 
@@ -108,12 +120,13 @@ class sample:
 	efficiencies	= []
 	fake_rates	= []
 
-	def __init__(self, input_file, observables):
+	def __init__(self, identifier, input_file, observables):
 
+	    self.identifier  = identifier
 	    self.input_file  = input_file
 	    self.observables = observables
-	    reco_tree_chain  = TChain('nominal')
-	    part_tree_chain  = TChain('particleLevel')
+	    self.reco_tree_chain  = TChain('nominal')
+	    self.part_tree_chain  = TChain('particleLevel')
 
 	def import_data(self):
 
@@ -148,17 +161,33 @@ class sample:
 	    gROOT.ProcessLine(struct1)
 	    gROOT.ProcessLine(struct2)
 
-	    nominal = nominal_t()
-	    particleLevel = particleLevel_t()
+	    self.reco_tree_struct = nominal_t()
+	    self.part_tree_struct = particleLevel_t()
 
-	    reco_tree_chain.SetBranchAddress("runNumber", AddressOf(nominal,'runNumber'))
-	    reco_tree_chain.SetBranchAddress("eventNumber", AddressOf(nominal,'eventNumber'))
+	    self.reco_tree_chain.SetBranchAddress( 'runNumber', AddressOf(self.reco_tree_struct,'runNumber') )
+	    self.reco_tree_chain.SetBranchAddress( 'eventNumber', AddressOf(self.reco_tree_struct,'eventNumber') )
 	    for obs in self.observables:
-		reco_tree_chain.SetBranchAddress( 'tma_' + obs.name, AddressOf(nominal, obs.name + '_reco') )
-		part_tree_chain.SetBranchAddress( 'tma_' + obs.name, AddressOf(particleLevel, obs.name + '_part') )
+		self.reco_tree_chain.SetBranchAddress( 'tma_' + obs.name, AddressOf(self.reco_tree_struct, obs.name + '_reco') )
+		self.part_tree_chain.SetBranchAddress( 'tma_' + obs.name, AddressOf(self.reco_tree_struct, obs.name + '_part') )
 
 	    ## TODO : add vector obs
 
-	def populate_up:
+"""	def populate_up:
 
-	    
+	    reco_hists = []
+
+	    output_dir = 'histograms_' + identifier
+	    os.system( 'mkdir ' + output_dir )
+
+	    global reco_only
+	    reco_hist_file = TFile( output_dir + '/reco_level.root', 'NEW' )
+
+	    for i in range( self.reco_tree_chain.GetEntries() ):
+		if ((i_1) % 1000) == 0: print 'Processing event number ' + str(i+1) + '...'
+		self.reco_tree_chain.GetEntry(i)
+
+		for j, obs in enumerate( self.observables ):
+		    y = obs.name + '_reco'
+		    reco_hists.append( 
+
+"""
