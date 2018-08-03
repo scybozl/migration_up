@@ -1,10 +1,10 @@
-from time import gmtime, strftime
-from ROOT import *
-import os, sys, math
 import glob
+import os, sys, math
+from time import gmtime, strftime
 from argparse import ArgumentParser, FileType
-from ratio_plot_ATLAS import ratioPlotATLAS
-from histogramming.migration_matrices import *
+
+from helpers.check_filename import *
+from histogramming.sample import *
 
 print """ 
 
@@ -30,25 +30,6 @@ print """
 
 """
 
-class colors:
-  HEADER = '\033[95m'
-  OKBLUE = '\033[94m'
-  OKGREEN = '\033[92m'
-  WARNING = '\033[93m'
-  FAIL = '\033[91m'
-  ENDC = '\033[0m'
-  BOLD = '\033[1m'
-  UNDERLINE = '\033[4m'
-
-def ERROR(msg):
-  print colors.FAIL + "ERROR: " + colors.ENDC + msg
-  print "Exiting..."
-  sys.exit()
-
-def WARNING(msg):
-# raw_input returns the empty string for "enter"
-  print colors.WARNING + "WARNING: " + colors.ENDC + msg
-
 parser = ArgumentParser(description='Create the migration matrices,\
 	efficiencies and fake hits histograms.')
 parser.add_argument('textfile', metavar='input_mtXXX_DSID_xxxxxx_(FS).txt', type=str, 
@@ -66,192 +47,19 @@ timestr = strftime("%d-%m-%y--%H.%M.%S", gmtime())
 evtNum = args.EVTNUM
 stat   = args.STAT
 
-## Top mass must be explicitly stated in the filename to avoid confusion
-## For the moment, to force a correct bookkeeping, DSID's, m_t, and so on
-## have to be explicitly stated in the input filename
-
-## Not all production samples have metadata or referenced setup info
-
-if not os.path.exists(args.textfile):
-  ERROR('The input file containing the samples location could not be found')
-if args.textfile.find("mt_") == -1:
-  ERROR('The input file must contain the top mass under the form \'mt_172p5\'')
-if args.textfile.split("mt_")[1].split(".")[0].split("_")[0].find("p") == -1:
-  ERROR('The input file must contain the top mass under the form \'mt_XXXpXX\'')
-mtop = args.textfile.split("mt_")[1].split("_")[0]
-
-## DSID
-
-if args.textfile.find("DSID") == -1:
-  ERROR('The input file must contain the sample DSID, i.e. \'DSID_xxxxxx\'')
-DSID = args.textfile.split("DSID_")[1].split("_")[0]
-
-if args.textfile.find("AFII") == -1 and args.textfile.find("FS") == -1:
-  ERROR('The input file must contain the simulation description, AFII or FS')
-sim = "AFII" if args.textfile.find("AFII") != -1 else "FS"
-
-if args.textfile.find("tag") != -1:
-  tag = args.textfile.split("tag_")[1].split("_")[0]
-else: tag = ""
+identifier = check_filename( args.textfile, evtNum )
 
 ## Naming convention
 
-identifier = "DSID_"+DSID+"_mt_"+mtop+"_"+sim
-if evtNum!="-99":  identifier += "_"+evtNum
-if tag != "": identifier += "_"+tag
+output_migr = "Aij_"+identifier
+output_eff  = "eps_"+identifier
+output_facc = "fak_"+identifier
+output_hists= "histograms_"+identifier
+output_clos = "closure_tests_"+identifier
 
-outputMigr = "Aij_"+identifier
-outputEff  = "eps_"+identifier
-outputFacc = "fak_"+identifier
-outputHists= "histograms_"+identifier
-outputClos = "closureTests_"+identifier
-
-if glob.glob("*"+identifier):
-  WARNING('The identifier for this sample already exists in this folder. Are you\
-  sure you want to overwrite the plots / root files? [y/n]')
-  yes = ['yes','y', 'ye', '']
-  no = ['no','n']
-  choice = raw_input().lower()
-  if choice in yes:
-    os.system("rm -r *"+identifier)
-  elif choice in no:
-    print "Exiting..."
-    sys.exit()
-  else:
-    sys.stdout.write("Please respond with 'yes' or 'no'")
-    print "Exiting..."
-    sys.exit()
-
-gStyle.SetOptStat("neou")
-gStyle.SetPaintTextFormat(".4f")
+#gStyle.SetOptStat("neou")
+#gStyle.SetPaintTextFormat(".4f")
 #gErrorIgnoreLevel = kInfo
-
-def populateHistsUp(reco, obsR, part, obsP):
-  os.system("mkdir " + outputHists)
-  global recoOnly
-  recoFile = TFile(outputHists + "/reco_level_"+mtop+".root", "NEW")
-  for i in range(reco.GetEntries()):
-    if ((i+1) % 1000) == 0: print "Processing event number " + str(i+1) + "..."
-    reco.GetEntry(i)
-    for j,obs in enumerate(observables):
-	y = obs[1] + "_reco"
-	recoHists[j].Fill(getattr(obsR,y),reco.weight_mc)
-    for j,vec in enumerate(vectors):
-	y = vec[1] + "_reco"
-	if globals()[y].size() > 0: recoHists[shift+j].Fill(globals()[y][0],reco.weight_mc)
-    # Check if the event only exists at reco level
-    if part.GetEntryWithIndex(obsR.runNumber, obsR.eventNumber) < 0:
-	recoOnly += 1
-	for j,obs in enumerate(observables):
-	  y = obs[1] + "_reco"
-	  facc[j].FillWeighted(kFALSE,reco.weight_mc,getattr(obsR,y))
-	for j,vec in enumerate(vectors):
-  	  y = vec[1] + "_reco"
-	  if globals()[y].size() > 0:  facc[shift+j].FillWeighted(kFALSE,reco.weight_mc,globals()[y][0])
-    # If not, it was matched . fill out the migration matrices
-    else:
-	# Fill the reco/particle histograms, and the migration matrices
-	for j,obs in enumerate(observables):
-	  x = obs[1] + "_part"
-	  y = obs[1] + "_reco"
-	  effHists[j].Fill(getattr(obsP,x),part.weight_mc)
-	  faccHists[j].Fill(getattr(obsR,y),reco.weight_mc)
-	  eff[j].FillWeighted(kTRUE,part.weight_mc,getattr(obsP,x))
-	  facc[j].FillWeighted(kTRUE,reco.weight_mc,getattr(obsR,y))
-	  migrationMatrices[j].Fill(getattr(obsP,x), getattr(obsR,y),part.weight_mc)
-	for j,vec in enumerate(vectors):
-	  x = vec[1] + "_part"
-	  y = vec[1] + "_reco"
-	  if globals()[x].size() > 0: 
-	    effHists[shift+j].Fill(globals()[x][0],part.weight_mc)
-	    eff[shift+j].FillWeighted(kTRUE,part.weight_mc,globals()[x][0])
-	  if globals()[y].size() > 0: 
-	    faccHists[shift+j].Fill(globals()[y][0],reco.weight_mc)
-	    facc[shift+j].FillWeighted(kTRUE,reco.weight_mc,globals()[y][0])
-	  if globals()[x].size() > 0 and globals()[y].size() > 0:
-	    migrationMatrices[shift+j].Fill(globals()[x][0],globals()[y][0],part.weight_mc)
-  for j,obs in enumerate(observables):
-    recoHists[j].Write()
-  for j,vec in enumerate(vectors):
-    recoHists[shift+j].Write()
-  recoFile.Close()
-
-def populateHistsDown(reco, obsR, part, obsP):
-  os.system("mkdir " + outputHists)
-  global partOnly
-  partFile = TFile(outputHists + "/part_level_"+mtop+".root", "NEW")
-  for i in range(part.GetEntries()):
-    if ((i+1) % 1000) == 0: print "Processing event number " + str(i+1) + "..."
-    part.GetEntry(i)
-    for j,obs in enumerate(observables):
-        x = obs[1] + "_part"
-        partHists[j].Fill(getattr(obsP,x),part.weight_mc)
-    for j,vec in enumerate(vectors):
-        x = vec[1] + "_part"
-        if globals()[x].size() > 0: partHists[shift+j].Fill(globals()[x][0],part.weight_mc)
-    if reco.GetEntryWithIndex(obsP.runNumber, obsP.eventNumber) < 0: 
-	partOnly += 1
-	for j,obs in enumerate(observables):
-          x = obs[1] + "_part"
-          eff[j].FillWeighted(kFALSE,part.weight_mc,getattr(obsP,x))	
-	for j,vec in enumerate(vectors):
-          x = vec[1] + "_part"
-          if globals()[x].size() > 0: eff[shift+j].FillWeighted(kFALSE,part.weight_mc,globals()[x][0])
-  for j,obs in enumerate(observables):
-    partHists[j].Write()
-  for j,vec in enumerate(vectors):
-    partHists[shift+j].Write()
-  partFile.Close()
-
-def normalize():
-  for i,obs in enumerate(observables):
-    # Normalize each x-bin to 1
-    for xbins in range(obs[2]+2):
-	sum = 0.
-##	errori = []
-	for ybins in range(obs[2]+2): 
-		sum += migrationMatrices[i].GetBinContent(xbins, ybins)
-##		errori.append(migrationMatrices[i].GetBinError(xbins, ybins))
-	for ybins in range(obs[2]+2): 
-	  if sum != 0: 
-		migrationMatrices[i].SetBinContent(xbins, ybins,
-			migrationMatrices[i].GetBinContent(xbins, ybins) / float(sum))
-#		migrationMatrices[i].SetBinError(xbins, ybins,
-#			migrationMatrices[i].GetBinError(xbins, ybins) / float(sum))
-#		migrationMatrices[i].SetBinError( xbins, ybins,
-#			migrationMatrices[i].GetBinError(xbins, ybins) / float(sum) 
-#			* (1 - migrationMatrices[i].GetBinError(xbins, ybins) / float(sum)) )
-		e = migrationMatrices[i].GetBinContent(xbins,ybins)
-		if e > 0 and e < 1:
-		        migrationMatrices[i].SetBinError( xbins, ybins,
-			math.sqrt( e*(1-e) / float(sum)))
-##		error2 = 1./pow(float(sum),2) * pow(errori[ybins],2)
-##		for ys in range(obs[2]+2):
-##		  error2 +=  pow(migrationMatrices[i].GetBinContent(xbins, ybins),2) / pow(float(sum),4) * pow(errori[ys],2)
-##		migrationMatrices[i].SetBinError(xbins, ybins, math.sqrt(error2))
-		
-  for i,vec in enumerate(vectors):
-    # Normalize each x-bin to 1
-    for xbins in range(vec[2]+2):
-	sum = 0.
-##	errori = []
-	for ybins in range(vec[2]+2): 
-		sum += migrationMatrices[shift+i].GetBinContent(xbins, ybins)
-##		errori.append(migrationMatrices[shift+i].GetBinError(xbins, ybins))
-	for ybins in range(vec[2]+2): 
-	  if sum != 0: 
-		migrationMatrices[shift+i].SetBinContent(xbins, ybins,
-			migrationMatrices[shift+i].GetBinContent(xbins, ybins) / float(sum))
-#		migrationMatrices[shift+i].SetBinError(xbins, ybins,
-#			migrationMatrices[shift+i].GetBinError(xbins, ybins) / float(sum))
-		e = migrationMatrices[shift+i].GetBinContent(xbins, ybins)
-		if e > 0 and e < 1:
-			migrationMatrices[shift+i].SetBinError( xbins, ybins,
-			math.sqrt( e*(1-e) / float(sum)))
-##		error2 = 1./pow(float(sum),2) * pow(errori[ybins],2)
-##		for ys in range(vec[2]+2):
-##		  error2 +=  pow(migrationMatrices[shift+i].GetBinContent(xbins, ybins),2) / pow(float(sum),4) * pow(errori[ys],2)
-##		migrationMatrices[shift+i].SetBinError(xbins, ybins, math.sqrt(error2))
 
 def drawMigrationMatrices():
   os.system("mkdir " + outputMigr)
@@ -488,6 +296,9 @@ observables = [
 		observable( 'Double_t', 'pseudotop_mtop_param',	20,   0,	350e+03,	'm_t'		)
 		]
 
+# Create output directories
+os.system( 'mkdir ' + ' '.join([output_migr, output_eff, output_facc, output_hists]) )
+
 # Declare migration matrices, reco/part. histograms, eff. & fake hits
 
 sample = sample( identifier, args.textfile, observables, None )
@@ -495,6 +306,9 @@ sample.import_data()
 sample.synchronize_trees()
 sample.init_objects()
 
-sample.populate_up("/afs/cern.ch/work/l/lscyboz/private/upfolding/blabla.root")
-sample.populate_down("/afs/cern.ch/work/l/lscyboz/private/upfolding/blabla2.root")
+sample.populate_up(output_hists)
+sample.populate_down(output_hists)
+
+sample.migration_normalize()
+sample.migration_write_output(output_migr)
 

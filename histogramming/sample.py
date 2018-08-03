@@ -49,6 +49,19 @@ class sample:
 		    efficencies_bi.append( efficiency_binomial(obs) )
 		    fake_rates_bi.append( fake_rates_binomial(obs) )
 
+	def migration_normalize(self):
+
+	    for matrix in self.migr_matrices:
+		matrix.normalize()
+
+	def migration_write_output(self, identifier):
+
+	    migr_file = TFile( identifier + '/migration_matrix.root', 'NEW' )
+	    for matrix in self.migr_matrices:
+		matrix.hist.SetDirectory( migr_file )
+		matrix.hist.Write()
+
+	    migr_file.Close()
 
 	def import_data(self):
 
@@ -112,7 +125,7 @@ class sample:
 
 	def populate_up(self, identifier):
 
-	    reco_hist_file = TFile( identifier, 'NEW' )
+	    reco_hist_file = TFile( identifier + '/reco_level.root', 'NEW' )
 
 	    ## Loop over all events
 
@@ -123,6 +136,7 @@ class sample:
 
 		for j, obs in enumerate( self.observables ):
 		    y = obs.name + '_reco'
+		    self.reco_histograms[j].hist.SetDirectory( reco_hist_file )
 		    self.reco_histograms[j].hist.Fill( getattr( self.reco_level_struct, y ), self.reco_tree_chain.weight_mc )
 
 		## If the event exists on the particle level, fill out the migration matrices, efficiencies and fakes
@@ -161,7 +175,7 @@ class sample:
 
 	def populate_down(self, identifier):
 
-	    part_hist_file = TFile( identifier, 'NEW' )
+	    part_hist_file = TFile( identifier + '/part_level.root', 'NEW' )
 
 	    for i in range( self.part_tree_chain.GetEntries() ):
 		if ((i+1) % 1000) == 0: print 'Processing event number ' + str(i+1) + '...'
@@ -170,6 +184,7 @@ class sample:
 
 		for j, obs in enumerate( self.observables ):
 		    x = obs.name + '_part'
+		    self.part_histograms[j].hist.SetDirectory( part_hist_file )
 		    self.part_histograms[j].hist.Fill( getattr( self.part_level_struct, x ), self.part_tree_chain.weight_mc )
 
 		## Fill the total histogram if event only on particle-level

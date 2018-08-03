@@ -1,4 +1,5 @@
 from ROOT import TH1F, TH2F, TEfficiency
+from math import sqrt
 
 class observable:
 
@@ -47,6 +48,25 @@ class migration_matrix:
             self.hist = TH2F( 'tMatrix_' + self.obs.name, 'A_{ij} ' + self.obs.name,
                          self.obs.nbins, self.obs.xmin, self.obs.xmax,
                          self.obs.nbins, self.obs.xmin, self.obs.xmax )
+
+	def normalize(self):
+
+	    for xbins in range( self.obs.nbins + 2 ):
+
+		sum = 0
+		for ybins in range( self.obs.nbins + 2 ):
+		    sum += self.hist.GetBinContent( xbins, ybins )
+
+		for ybins in range( self.obs.nbins + 2):
+		    if sum != 0:
+
+		        self.hist.SetBinContent( xbins, ybins, 
+				self.hist.GetBinContent( xbins, ybins ) / float(sum) )
+
+			e = self.hist.GetBinContent( xbins, ybins )
+			if e > 0 and e < 1:
+			    self.hist.SetBinError( xbins, ybins, 
+				sqrt( e*(1-e) / float(sum) ) )
 
 class efficiency:
 
