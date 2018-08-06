@@ -1,4 +1,4 @@
-from ROOT import gStyle, TH1F, TH2F, TEfficiency, TCanvas
+from ROOT import gStyle, gPad, TH1F, TH2F, TEfficiency, TCanvas
 from math import sqrt
 
 class observable:
@@ -109,7 +109,7 @@ class efficiency:
 	    self.hist.GetYaxis().SetTitle( '#epsilon_{eff} ' + self.obs.latex )
 	    self.hist.GetYaxis().SetRangeUser(0,1)
 	    self.hist.Draw('*HE')
-	    c.SaveAs(identifier + '/efficiency_' + self.obs.name + '.pdf')
+	    c.SaveAs(identifier + '/eps_' + self.obs.name + '.pdf')
 
 	    c.Close()
 
@@ -123,6 +123,24 @@ class efficiency_binomial:
             self.obs  = observable
             self.hist  = TEfficiency( 'tEff_' + self.obs.name, '#epsilon_{epsilon} ' + self.obs.name,
                           self.obs.nbins, self.obs.xmin, self.obs.xmax )
+	    self.hist.SetUseWeightedEvents()
+
+	def draw(self, identifier):
+
+	    c = TCanvas('c', 'c', 900, 900)
+	    c.cd()
+
+	    self.hist.Draw('AP')
+
+	    gPad.Update()
+	    graph = self.hist.GetPaintedGraph()
+	    graph.SetMinimum(0)
+	    graph.SetMaximum(1)
+	    gPad.Update()
+
+	    c.SaveAs(identifier + '/eps_' + self.obs.name + '_class.pdf')
+
+	    c.Close()
 
 class fake_rates:
 
@@ -144,7 +162,7 @@ class fake_rates:
 	    self.hist.GetYaxis().SetTitle( 'f_{acc} ' + self.obs.latex )
 	    self.hist.GetYaxis().SetRangeUser(0,1)
 	    self.hist.Draw('*HE')
-	    c.SaveAs(identifier + '/fakes_' + self.obs.name + '.pdf')
+	    c.SaveAs(identifier + '/facc_' + self.obs.name + '.pdf')
 
 	    c.Close()
 
@@ -158,6 +176,24 @@ class fake_rates_binomial:
             self.obs  = observable
             self.hist = TEfficiency( 'tFacc_' + self.obs.name, 'f_{acc} ' + self.obs.name,
                          self.obs.nbins, self.obs.xmin, self.obs.xmax )
+	    self.hist.SetUseWeightedEvents()
+
+	def draw(self, identifier):
+
+	    c = TCanvas('c', 'c', 900, 900)
+	    c.cd()
+
+	    self.hist.Draw('AP')
+
+	    gPad.Update()
+	    graph = self.hist.GetPaintedGraph()
+	    graph.SetMinimum(0)
+	    graph.SetMaximum(1)
+	    gPad.Update()
+
+	    c.SaveAs(identifier + '/facc_' + self.obs.name + '_class.pdf')
+
+	    c.Close()
 
 class reco_hist:
 
@@ -181,3 +217,13 @@ class part_hist:
             self.hist    = TH1F( 'tPart_' + self.obs.name, self.obs.name + '^{part}',
                             self.obs.nbins, self.obs.xmin, self.obs.xmax )
 
+class folded_hist:
+
+        obs       = None
+        hist = None
+
+        def __init__(self, observable):
+
+            self.obs    = observable
+            self.hist   = TH1F( 'tRecoFolded_' + self.obs.name, self.obs.name + '^{reco} folded',
+                           self.obs.nbins, self.obs.xmin, self.obs.xmax )

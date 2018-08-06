@@ -1,10 +1,12 @@
-from ROOT import gROOT, AddressOf, TH1F, TH2F, TEfficiency, TTree, TChain, TTreeIndex, TFile
+from ROOT import kTRUE, kFALSE, gROOT, AddressOf, TH1F, TH2F, TEfficiency, TTree, TChain, TTreeIndex, TFile
 from objects import *
+from ratio_plot_ATLAS import ratioPlotATLAS
 
 class sample:
 
 	identifier = None
 	error_treatment = None
+	if_closure = False
 
 	reco_tree_chain  = None
 	part_tree_chain  = None
@@ -23,12 +25,14 @@ class sample:
 
 	reco_histograms = []
 	part_histograms = []
+	reco_folded     = []
 
 
-	def __init__(self, identifier, input_file, observables, error):
+	def __init__(self, identifier, input_file, observables, error, if_closure):
 
 	    self.identifier  = identifier
 	    self.error_treatment = error
+	    self.if_closure = if_closure
 	    self.input_file  = input_file
 	    self.observables = observables
 	    self.reco_tree_chain  = TChain('nominal')
@@ -46,8 +50,12 @@ class sample:
 
 	    if self.error_treatment == 'binomial':
 		for obs in self.observables:
-		    efficencies_bi.append( efficiency_binomial(obs) )
-		    fake_rates_bi.append( fake_rates_binomial(obs) )
+		    self.efficiencies_bi.append( efficiency_binomial(obs) )
+		    self.fake_rates_bi.append( fake_rates_binomial(obs) )
+
+	    if self.if_closure == True:
+		for obs in self.observables:
+		    self.reco_folded.append( folded_hist(obs) )
 
 	def migration_normalize(self):
 
@@ -103,6 +111,11 @@ class sample:
 	    for eff in self.efficiencies:
 		eff.draw( identifier )
 
+	def efficiencies_bi_draw(self, identifier):
+
+	    for eff in self.efficiencies_bi:
+		eff.draw( identifier )
+
 	def fakes_write_output(self, identifier):
 
 	    facc_file = TFile( identifier + '/fake_rates.root', 'NEW' )
@@ -116,6 +129,11 @@ class sample:
 	def fakes_draw(self, identifier):
 
 	    for facc in self.fake_rates:
+		facc.draw( identifier )
+
+	def fakes_bi_draw(self, identifier):
+
+	    for facc in self.fake_rates_bi:
 		facc.draw( identifier )
 
 	def import_data(self):
@@ -198,7 +216,16 @@ class sample:
 
 		## If the event exists on the particle level, fill out the migration matrices, efficiencies and fakes
 		if self.part_tree_chain.GetEntryWithIndex( self.reco_level_struct.runNumber,
-							   self.reco_level_struct.eventNumber ) >= 0:
+							   self.reco_level_struct.eventNumber ) < 0:
+
+		    if self.error_treatment == 'binomial':
+			for j, obs in enumerate( self.observables ):
+			    y = obs.name + '_reco'
+			    self.fake_rates_bi[j].hist.FillWeighted( kFALSE, self.reco_tree_chain.weight_mc,
+						                     getattr( self.reco_level_struct, y ) )
+
+		## If the event only exists on reco level, still fill out the total histo for TEfficiencies
+		else:
 
 		    for j, obs in enumerate( self.observables ):
 			x = obs.name + '_part'
@@ -215,14 +242,6 @@ class sample:
 			    self.fake_rates_bi[j].hist.FillWeighted(   kTRUE, self.reco_tree_chain.weight_mc,
 							               getattr( self.reco_level_struct, y ) )
 
-		## If the event only exists on reco level, still fill out the total histo for TEfficiencies
-		else:
-
-		    if self.error_treatment == 'binomial':
-			for j, obs in enumerate( self.observables ):
-			    y = obs.name + '_reco'
-			    self.fake_rates_bi[j].hist.FillWeighted( kFALSE, self.reco_tree_chain.weight_mc,
-						                     getattr( self.reco_level_struct, y ) )
 
 	    for j, obs in enumerate( self.observables ):
 		self.reco_histograms[j].hist.Write()
@@ -249,16 +268,55 @@ class sample:
 		    self.part_histograms[j].hist.Fill( getattr( self.part_level_struct, x ), self.part_tree_chain.weight_mc )
 
 		## Fill the total histogram if event only on particle-level
-		if ( self.reco_tree_chain.GetEntryWithIndex( self.part_level_struct.runNumber,
-		     self.part_level_struct.eventNumber ) < 0 ) and self.error_treatment == 'binomial': 
+		if self.reco_tree_chain.GetEntryWithIndex( self.part_level_struct.runNumber,
+							   self.part_level_struct.eventNumber ) < 0:
 
-		    for j, obs in enumerate( self.observables ):
-			x = obs.name + '_part'
-			efficiencies_bi[j].hist.FillWeighted( kFALSE, self.part_tree_chain.weight_mc,
-							      getattr( self.part_level_struct, x ) )
+		    if self.error_treatment == 'binomial': 
+
+			for j, obs in enumerate( self.observables ):
+			    x = obs.name + '_part'
+			    self.efficiencies_bi[j].hist.FillWeighted( kFALSE, self.part_tree_chain.weight_mc,
+							  	       getattr( self.part_level_struct, x ) )
 
 	    for j, obs in enumerate( self.observables ):
 		self.part_histograms[j].hist.Write()
 		self.part_histograms[j].hist.SetDirectory(0)
 
 	    part_hist_file.Close()
+
+	def closure_tests(self, identifier):
+
+	    for i, obs in enumerate( self.observables ):
+		for xbins in range( obs.nbins + 2 ):
+
+		    sum = 0.
+		    error1_2 = 0.
+		    error2_2 = 0.
+		    error3_2 = 0.
+		    for j in range( obs.nbins + 2 ):
+			sum += self.migr_matrices[i].hist.GetBinContent(j, xbins) *\
+				self.part_histograms[i].hist.GetBinContent(j) *\
+				self.efficiencies[i].hist.GetBinContent(j)
+			error1_2 += pow(self.migr_matrices[i].hist.GetBinError(j,xbins) *\
+				self.part_histograms[i].hist.GetBinContent(j) *\
+				self.efficiencies[i].hist.GetBinContent(j), 2)
+			error2_2 += pow(self.migr_matrices[i].hist.GetBinContent(j, xbins) *\
+				self.part_histograms[i].hist.GetBinError(j) *\
+				self.efficiencies[i].hist.GetBinContent(j), 2)
+			error3_2 += pow(self.migr_matrices[i].hist.GetBinContent(j,xbins) *\
+				self.part_histograms[i].hist.GetBinContent(j) *\
+				self.efficiencies[i].hist.GetBinError(j), 2)
+
+		    if self.fake_rates[i].hist.GetBinContent(xbins) != 0:
+			error2 = 1./pow(self.fake_rates[i].hist.GetBinContent(xbins), 4) *\
+				pow(self.fake_rates[i].hist.GetBinError(xbins)*sum, 2)
+			error2 += 1./pow(self.fake_rates[i].hist.GetBinContent(xbins), 2) *\
+				( error1_2 + error2_2 + error3_2 )
+			sum *= 1./self.fake_rates[i].hist.GetBinContent(xbins)
+
+		    else: error2 = 0.
+
+		    self.reco_folded[i].hist.SetBinContent(xbins, sum)
+		    self.reco_folded[i].hist.SetBinError( xbins, sqrt(error2) )
+
+		ratioPlotATLAS( self.reco_histograms[i].hist, self.reco_folded[i].hist, identifier + '/' + obs.name, 1 )
