@@ -310,5 +310,8 @@ sample.populate_up(output_hists)
 sample.populate_down(output_hists)
 
 sample.migration_normalize()
+sample.migration_draw(output_migr)
 sample.migration_write_output(output_migr)
 
+sample.efficiencies_write_output(output_eff)
+sample.fakes_write_output(output_facc)

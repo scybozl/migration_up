@@ -1,4 +1,4 @@
-from ROOT import TH1F, TH2F, TEfficiency
+from ROOT import gStyle, TH1F, TH2F, TEfficiency, TCanvas
 from math import sqrt
 
 class observable:
@@ -68,10 +68,31 @@ class migration_matrix:
 			    self.hist.SetBinError( xbins, ybins, 
 				sqrt( e*(1-e) / float(sum) ) )
 
+	def draw(self, identifier):
+
+	    gStyle.SetOptStat("neou")
+	    gStyle.SetPaintTextFormat(".4f")
+
+	    c = TCanvas('c', 'c', 900, 900)
+	    c.cd()
+
+	    self.hist.GetXaxis().SetTitle( self.obs.latex + '^{part}' )
+	    self.hist.GetYaxis().SetTitle( self.obs.latex + '^{reco}' )
+	    self.hist.GetZaxis().SetRangeUser(0,1)
+	    self.hist.SetMarkerSize(0.3)
+	    self.hist.Draw('COLZ TEXT E')
+	    c.SaveAs(identifier + '/Aij_' + self.obs.name + '.pdf')
+
+	    self.hist.Draw('LEGO2Z')
+	    c.SaveAs(identifier + '/Aij_' + self.obs.name + '_lego.pdf')
+
+	    c.Close()
+
+
 class efficiency:
 
         obs     = None
-        hist     = None
+        hist    = None
 
         def __init__(self, observable):
 
@@ -79,10 +100,23 @@ class efficiency:
             self.hist = TH1F( 'tEff_' + self.obs.name, '#epsilon_{epsilon} ' + self.obs.name,
                          self.obs.nbins, self.obs.xmin, self.obs.xmax )
 
+	def draw(self, identifier):
+
+	    c = TCanvas('c', 'c', 900, 900)
+	    c.cd()
+
+	    self.hist.GetXaxis().SetTitle( self.obs.latex )
+	    self.hist.GetYaxis().SetTitle( '#epsilon_{eff} ' + self.obs.latex )
+	    self.hist.GetYaxis().SetRangeUser(0,1)
+	    self.hist.Draw('*HE')
+	    c.SaveAs(identifier + '/efficiency_' + self.obs.name + '.pdf')
+
+	    c.Close()
+
 class efficiency_binomial:
 
         obs     = None
-        hist     = None
+        hist    = None
 
         def __init__(self, observable):
 
@@ -100,6 +134,19 @@ class fake_rates:
             self.obs  = observable
             self.hist = TH1F( 'tFacc_' + self.obs.name, 'f_{acc} ' + self.obs.name,
                          self.obs.nbins, self.obs.xmin, self.obs.xmax )
+
+	def draw(self, identifier):
+
+	    c = TCanvas('c', 'c', 900, 900)
+	    c.cd()
+
+	    self.hist.GetXaxis().SetTitle( self.obs.latex )
+	    self.hist.GetYaxis().SetTitle( 'f_{acc} ' + self.obs.latex )
+	    self.hist.GetYaxis().SetRangeUser(0,1)
+	    self.hist.Draw('*HE')
+	    c.SaveAs(identifier + '/fakes_' + self.obs.name + '.pdf')
+
+	    c.Close()
 
 class fake_rates_binomial:
 

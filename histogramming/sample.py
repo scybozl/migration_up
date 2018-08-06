@@ -54,14 +54,69 @@ class sample:
 	    for matrix in self.migr_matrices:
 		matrix.normalize()
 
+	    for i, obs in enumerate( self.observables ):
+
+		self.efficiencies[i].hist.Sumw2()
+		self.efficiencies[i].hist.Divide( self.part_histograms[i].hist )
+
+		for bin in range( obs.nbins + 2 ):
+		    e = self.efficiencies[i].hist.GetBinContent( bin )
+		    if self.part_histograms[i].hist.GetBinContent( bin ) > 0 and e > 0 and e < 1:
+			self.efficiencies[i].hist.SetBinError( bin, sqrt( e*(1-e)/self.part_histograms[i].hist.GetBinContent( bin )) )
+
+		self.fake_rates[i].hist.Sumw2()
+		self.fake_rates[i].hist.Divide( self.reco_histograms[i].hist )
+
+		for bin in range( obs.nbins + 2 ):
+		    e = self.fake_rates[i].hist.GetBinContent( bin )
+		    if self.reco_histograms[i].hist.GetBinContent( bin ) > 0 and e > 0 and e < 1:
+			self.fake_rates[i].hist.SetBinError( bin, sqrt( e*(1-e)/self.reco_histograms[i].hist.GetBinContent( bin )) )
+
+
 	def migration_write_output(self, identifier):
 
 	    migr_file = TFile( identifier + '/migration_matrix.root', 'NEW' )
 	    for matrix in self.migr_matrices:
 		matrix.hist.SetDirectory( migr_file )
 		matrix.hist.Write()
+		matrix.hist.SetDirectory(0)
 
 	    migr_file.Close()
+
+	def migration_draw(self, identifier):
+
+	    for matrix in self.migr_matrices:
+		matrix.draw( identifier )
+
+	def efficiencies_write_output(self, identifier):
+
+	    eff_file = TFile( identifier + '/efficiencies.root', 'NEW' )
+	    for eff in self.efficiencies:
+		eff.hist.SetDirectory( eff_file )
+		eff.hist.Write()
+		eff.hist.SetDirectory(0)
+
+	    eff_file.Close()
+
+	def efficiencies_draw(self, identifier):
+
+	    for eff in self.efficiencies:
+		eff.draw( identifier )
+
+	def fakes_write_output(self, identifier):
+
+	    facc_file = TFile( identifier + '/fake_rates.root', 'NEW' )
+	    for facc in self.fake_rates:
+		facc.hist.SetDirectory( facc_file )
+		facc.hist.Write()
+		facc.hist.SetDirectory(0)
+
+	    facc_file.Close()
+
+	def fakes_draw(self, identifier):
+
+	    for facc in self.fake_rates:
+		facc.draw( identifier )
 
 	def import_data(self):
 
@@ -128,7 +183,9 @@ class sample:
 	    reco_hist_file = TFile( identifier + '/reco_level.root', 'NEW' )
 
 	    ## Loop over all events
-
+	    print '*************************************\n'+\
+		  '******* Populating reco level *******\n'+\
+		  '*************************************\n'
 	    for i in range( self.reco_tree_chain.GetEntries() ):
 		if ((i+1) % 1000) == 0: print 'Processing event number ' + str(i+1) + '...'
 
@@ -169,6 +226,7 @@ class sample:
 
 	    for j, obs in enumerate( self.observables ):
 		self.reco_histograms[j].hist.Write()
+		self.reco_histograms[j].hist.SetDirectory(0)
 
 	    reco_hist_file.Close()
 
@@ -177,6 +235,9 @@ class sample:
 
 	    part_hist_file = TFile( identifier + '/part_level.root', 'NEW' )
 
+	    print '*************************************\n'+\
+		  '******* Populating part level *******\n'+\
+		  '*************************************\n'
 	    for i in range( self.part_tree_chain.GetEntries() ):
 		if ((i+1) % 1000) == 0: print 'Processing event number ' + str(i+1) + '...'
 
@@ -198,5 +259,6 @@ class sample:
 
 	    for j, obs in enumerate( self.observables ):
 		self.part_histograms[j].hist.Write()
+		self.part_histograms[j].hist.SetDirectory(0)
 
 	    part_hist_file.Close()
