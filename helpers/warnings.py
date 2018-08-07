@@ -1,4 +1,6 @@
 
+from sys import exit
+
 class colors:
   HEADER = '\033[95m'
   OKBLUE = '\033[94m'
@@ -12,8 +14,9 @@ class colors:
 def ERROR(msg):
   print colors.FAIL + "ERROR: " + colors.ENDC + msg
   print "Exiting..."
-  sys.exit()
+  exit()
 
 def WARNING(msg):
 # raw_input returns the empty string for "enter"
   print colors.WARNING + "WARNING: " + colors.ENDC + msg
+
