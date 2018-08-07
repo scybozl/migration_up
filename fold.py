@@ -30,4 +30,5 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    find_matrices( args.inputfolder )
+    [migr, eff, facc] = find_matrices( args.inputfolder )
+    print [migr, eff, facc]
