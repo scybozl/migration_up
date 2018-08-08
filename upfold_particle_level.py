@@ -1,5 +1,6 @@
-from ROOT import TFile, TH1F, TH2F
+from ROOT import TFile, TH1F, TH2F, kTRUE
 from argparse import ArgumentParser, FileType
+from helpers.check_filename import folder_exists
 from helpers.find_input_matrices import find_matrices, find_part_hists
 from ratio_plot_ATLAS import ratioPlotATLAS
 
@@ -40,6 +41,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     output_directory = args.OUTPUT
+    folder_exists( output_directory )
     os.system( 'mkdir ' + output_directory )
 
     [migr, eff, facc, reco] = find_matrices( args.inputfolder )
@@ -119,7 +121,17 @@ if __name__ == '__main__':
                 sum *= 1./fakes[i].GetBinContent(xbins)
 	    else: error2 = 0.
 
-        reco_folded[i].SetBinContent( xbins, sum )
-        reco_folded[i].SetBinError( xbins, sqrt(error2) )
+    	    reco_folded[i].SetBinContent( xbins, sum )
+    	    reco_folded[i].SetBinError( xbins, sqrt(error2) )
 
-	ratioPlotATLAS( reco_folded[i], reco_histograms[i], output_directory + '/' + Aij.GetName().split('tMatrix_')[1] )
+	## Normalize them to unity
+	## TODO: more flexible normalization, normalize to cross-section
+
+	norm_1 = reco_folded[i].Integral()
+	reco_folded[i].Sumw2(kTRUE)
+	reco_folded[i].Scale(1./norm_1)
+	norm_2 = reco_histograms[i].Integral()
+	reco_histograms[i].Sumw2(kTRUE)
+	reco_histograms[i].Scale(1./norm_2)
+
+	ratioPlotATLAS( reco_folded[i], reco_histograms[i], output_directory + '/' + Aij.GetName().split('tMatrix_')[1], 1, 0 )

@@ -40,21 +40,24 @@ def check_filename( name, evtNum ):
 
 	## Check that the output directory doesn't already exist
 
-	if glob( '*'+identifier ):
-	  WARNING('The identifier for this sample already exists in this folder. Are you' +
-	  ' sure you want to overwrite the plots / root files? [y/n]')
-	  yes = ['yes','y', 'ye', '']
-	  no = ['no','n']
-	  choice = raw_input().lower()
-	  if choice in yes:
-	    os.system('rm -r *'+identifier)
-	  elif choice in no:
-	    print 'Exiting...'
-	    exit()
-	  else:
-	    print 'Please respond with \'yes\' or \'no\''
-	    print 'Exiting...'
-	    exit()
-
+	folder_exists( identifier )
 
 	return identifier
+
+def folder_exists( identifier ):
+
+	  if glob( '*'+identifier ):
+          WARNING('The identifier for this sample already exists in this folder. Are you' +
+          ' sure you want to overwrite the plots / root files? [y/n]')
+          yes = ['yes','y', 'ye', '']
+          no = ['no','n']
+          choice = raw_input().lower()
+          if choice in yes:
+            os.system('rm -r *'+identifier)
+          elif choice in no:
+            print 'Exiting...'
+            exit()
+          else:
+            print 'Please respond with \'yes\' or \'no\''
+            print 'Exiting...'
+            exit()
