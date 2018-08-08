@@ -35,7 +35,7 @@ def ratioPlotATLAS(firstHist,secondHist,title,leg=0,particle=1):
                        , textPlotsDist = 0.04999
                        , considerUncertainties = True
                        , topTextPosY = ph.topTextPosY, bottomTextPosY = ph.bottomTextPosY
-                       , verbose = True, entryHeight = 0.065
+                       , verbose = False, entryHeight = 0.065
                        , putTextAtTheTop = True, putTextAtTheBottom = True
     )
     atlasLabels = ["#font[72]{ATLAS} Preliminary", "#font[12]{Simulation}", "13 TeV"]
@@ -76,7 +76,7 @@ def ratioPlotATLAS(firstHist,secondHist,title,leg=0,particle=1):
     lh.resetAttributes(pad = pads[1], plots = [hRat, line]
     		       , xMin = None
     		       , xMax = None
-                       , verbose = True
+                       , verbose = False
                        , considerUncertainties = False
                        , yMinOffset = 0.06, yMaxOffset = 0.06
     )
