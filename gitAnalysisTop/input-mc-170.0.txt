@@ -1,4 +1,0 @@
-/afs/cern.ch/work/l/lscyboz/public/TopAnalysis/mc15_13TeV.410493.PowhegPythia8EvtGen_A14_ttbar_mtop170p0_nonallhad.merge.DAOD_TOPQ1.e5965_a766_a821_r7676_p2952/DAOD_TOPQ1.12531477._000025.pool.root.1
-/afs/cern.ch/work/l/lscyboz/public/TopAnalysis/mc15_13TeV.410493.PowhegPythia8EvtGen_A14_ttbar_mtop170p0_nonallhad.merge.DAOD_TOPQ1.e5965_a766_a821_r7676_p2952/DAOD_TOPQ1.12531477._000212.pool.root.1
-/afs/cern.ch/work/l/lscyboz/public/TopAnalysis/mc15_13TeV.410493.PowhegPythia8EvtGen_A14_ttbar_mtop170p0_nonallhad.merge.DAOD_TOPQ1.e5965_a766_a821_r7676_p2952/DAOD_TOPQ1.12531477._000312.pool.root.1
-/afs/cern.ch/work/l/lscyboz/public/TopAnalysis/mc15_13TeV.410493.PowhegPythia8EvtGen_A14_ttbar_mtop170p0_nonallhad.merge.DAOD_TOPQ1.e5965_a766_a821_r7676_p2952/DAOD_TOPQ1.12531477._000319.pool.root.1
