@@ -2132,7 +2132,6 @@ class layout_helper(TH1_helper):
             if xMin is None and xMax is None:
                 continue
             if plot is not None:
-		print self, xMin, xMax
                 yMax, yMin = self.getMaxAndMin(plot, xMin, xMax)
                 if self.pad.GetLogy() and yMin <= 0:
                     if self.verbose:
