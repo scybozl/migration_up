@@ -1,6 +1,9 @@
 from ROOT import TFile, TH1F, TH2F
 from argparse import ArgumentParser, FileType
 from helpers.find_input_matrices import find_matrices, find_part_hists
+from ratio_plot_ATLAS import ratioPlotATLAS
+
+from math import sqrt
 import os
 
 if __name__ == '__main__':
@@ -92,9 +95,7 @@ if __name__ == '__main__':
 
     ## Fold the particle-level histos from file 2 and plot
     for i, Aij in enumerate( migration_matrix ):
-	for j in range(8):
-		for k in range(8): print Aij.GetBinContent(j,k)
-	nbins = Aij.GetXaxis.GetNbins()
+	nbins = Aij.GetXaxis().GetNbins()
 	for xbins in range( nbins + 2 ):
 
 	    sum = 0.
