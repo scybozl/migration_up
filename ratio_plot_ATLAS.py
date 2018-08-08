@@ -76,7 +76,7 @@ def ratioPlotATLAS(firstHist,secondHist,title,leg=0,particle=1):
     lh.resetAttributes(pad = pads[1], plots = [hRat, line]
     		       , xMin = None
     		       , xMax = None
-                       , verbose = False
+                       , verbose = True
                        , considerUncertainties = False
                        , yMinOffset = 0.06, yMaxOffset = 0.06
     )
@@ -89,7 +89,9 @@ def ratioPlotATLAS(firstHist,secondHist,title,leg=0,particle=1):
         return
     # Draw objects
     ph.drawBottomFrame(lh.getFrame().Clone(), hist1.GetXaxis().GetTitle(), "Ratio ")
-    hRat.Divide(hist2)
+    hOne.Divide(hist2)
+    hOne.SetMinimum(0.)
+    hOne.SetMaximum(3.)
     hOne.Draw("E2")
     hRat.Draw("same")
     line.Draw()
