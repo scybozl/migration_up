@@ -46,7 +46,7 @@ def check_filename( name, evtNum ):
 
 def folder_exists( identifier ):
 
-	  if glob( '*'+identifier ):
+	if glob( '*'+identifier ):
           WARNING('The identifier for this sample already exists in this folder. Are you' +
           ' sure you want to overwrite the plots / root files? [y/n]')
           yes = ['yes','y', 'ye', '']
