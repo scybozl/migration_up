@@ -20,3 +20,5 @@ def WARNING(msg):
 # raw_input returns the empty string for "enter"
   print colors.WARNING + "WARNING: " + colors.ENDC + msg
 
+def MESSAGE(msg):
+  print colors.HEADER + "MESSAGE: " + colors.ENDC + msg

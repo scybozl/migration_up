@@ -15,7 +15,8 @@ def check_filename( name, evtNum ):
 	  ERROR('The input file containing the samples location could not be found')
 	if name.find('mt_') == -1:
 	  ERROR('The input file must contain the top mass under the form \'mt_172p5\'')
-	if name.split('mt_')[1].split('.')[0].split('_')[0].find('p') == -1:
+	try: mtopp = name.split('mt_')[1].split('.')[0].split('_')[0].find('p')
+	except ValueError: 
 	  ERROR('The input file must contain the top mass under the form \'mt_XXXpXX\'')
 	mtop = name.split('mt_')[1].split('_')[0]
 
