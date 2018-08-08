@@ -4,6 +4,8 @@ from plotting.layout_helpers import layout_helper
 from plotting.plotting_helpers import simplePlot
 from plotting.plotting_helpers import ratioPlot
 
+## Ratio plot class
+
 def ratioPlotATLAS(firstHist,secondHist,title,leg=0,particle=1):
 
     hist1 = firstHist.Clone("hist1")
@@ -68,15 +70,17 @@ def ratioPlotATLAS(firstHist,secondHist,title,leg=0,particle=1):
 
     hRat = hist1.Clone()
     line = ph.lineAtOne(hist1.GetBinLowEdge(1),hist1.GetBinLowEdge(hist1.GetNbinsX()+1))
+
     hOne = hist1.Clone()
     hOne.Divide(hist1)
     hOne.SetFillColorAlpha(kRed, 0.5)
     hOne.SetMarkerSize(0)
+
     # Setup layout_helper
     lh.resetAttributes(pad = pads[1], plots = [hRat, line]
     		       , xMin = None
     		       , xMax = None
-                       , verbose = True
+                       , verbose = False
                        , considerUncertainties = False
                        , yMinOffset = 0.06, yMaxOffset = 0.06
     )
@@ -89,9 +93,9 @@ def ratioPlotATLAS(firstHist,secondHist,title,leg=0,particle=1):
         return
     # Draw objects
     ph.drawBottomFrame(lh.getFrame().Clone(), hist1.GetXaxis().GetTitle(), "Ratio ")
-    hOne.Divide(hist2)
+    hRat.Divide(hist2)
     hOne.SetMinimum(0.)
-    hOne.SetMaximum(3.)
+    hOne.SetMaximum(2.)
     hOne.Draw("E2")
     hRat.Draw("same")
     line.Draw()
