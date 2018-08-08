@@ -1,0 +1,8 @@
+BTaggingDisc 0.645925
+LeadLeptonPt 25.0
+AnalysisType lepjets
+Lumi 32884.6
+VariablesList InputVariablesList_LJ.txt
+LeptonChannel emujets_2016
+LumiLabel 32.9
+DataLabel 2016

@@ -1,0 +1,8 @@
+BTaggingDisc 0.645925
+LeadLeptonPt 25.0
+AnalysisType dilepton
+Lumi 36470.16
+VariablesList InputVariablesList_DL.txt
+LeptonChannel ll_2015
+LumiLabel 3.21296
+DataLabel 2015

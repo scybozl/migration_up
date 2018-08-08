@@ -1,0 +1,6 @@
+CoreHistos     1
+SmallJetsAll   1
+DileptonHistos 1
+LepJetsHistos  0
+KLFHistos      0
+Weights        0
