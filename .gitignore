@@ -1,10 +1,13 @@
-
+closureTests_*
+Aij_*
+eps_*
 closure_tests_*
 efficiencies_*
 migration_matrices*/
 fake*
 histograms_*
 
+*.pyc
 setup.sh
 out*
 output*.root
