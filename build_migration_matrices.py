@@ -26,7 +26,7 @@ if __name__ == '__main__':
     #*******************************************************************************#
     #										    #
     # Author : Ludovic Scyboz (scyboz@mpp.mpg.de)				    #
-    # Date	 : 28.02.2018							    #
+    # Date   : 28.02.2018							    #
     #										    #
     #################################################################################
 
@@ -69,8 +69,84 @@ if __name__ == '__main__':
 
     # List of observables from which to build migration matrices
     observables = [
-		observable( 'Int_t',	'nbjets', 		 8,   0,	8,		'n_{b,jets}'	),
-		observable( 'Double_t', 'pseudotop_mtop_param',	20,   0,	350e+03,	'm_t'		)
+		observable( 'Int_t',	'nbjets', 		 8,   0.5,	8.5,		'n_{b,jets}'	),
+		observable( 'Int_t',	'njets', 		15,   0.5,	15.5,		'n_{jets}'	),
+		observable( 'Double_t', 'etdr',			20,   0,	400e+03,	'E_{T}#Delta R'	),
+		observable( 'Double_t', 'pseudotop0_mtop_param',20,   0,	350e+03,	'm_{t}'		),
+		observable( 'Double_t', 'pseudotop1_mtop_param',20,   0,	350e+03,	'm_{t}'		),
+		observable( 'Double_t', 'pseudotop2_mtop_param',20,   0,	350e+03,	'm_{t}'		),
+		observable( 'Double_t', 'pseudotop3_mtop_param',20,   0,	350e+03,	'm_{t}'		),
+		observable( 'Double_t', 'pseudotop_mw',		20,   0,	350e+03,	'm_{W}'		),
+		observable( 'Double_t', 'pseudotop_rbq',	20,   0,	3,		'R_{bq}'	),
+		observable( 'Double_t', 'met',			20,   0,	800e+03,	'Missing E_{T}'	),
+		observable( 'Double_t', 'met_ex',		20,   -800e+03,	800e+03,	'MET E_{x}'	),
+		observable( 'Double_t', 'met_ey',		20,   -800e+03,	800e+03,	'MET E_{y}'	),
+		observable( 'Double_t', 'met_phi',		20,   -3.14159,	3.14159,	'MET #phi'	),
+		observable( 'Double_t', 'mlb_minavg',		20,   0,	350e+03,	'm_{lb}'	),
+		observable( 'Double_t', 'mlb_minavglow',	20,   0,	350e+03,	'm_{lb}'	),
+		observable( 'Double_t', 'mlb_minavghigh',	20,   0,	350e+03,	'm_{lb}'	),
+		observable( 'Double_t', 'mlb_minmax',		20,   0,	350e+03,	'm_{lb}'	),
+		observable( 'Double_t', 'mlb_minmaxlow',	20,   0,	350e+03,	'm_{lb}'	),
+		observable( 'Double_t', 'mlb_minmaxavg',	20,   0,	350e+03,	'm_{lb}'	),
+		observable( 'Double_t', 'pTlb_1',		20,   0,	600e+03,	'p_{T}^{lb}_{1}'),
+		observable( 'Double_t', 'pTlb_2',		20,   0,	600e+03,	'p_{T}^{lb}_{2}'),
+		observable( 'Double_t', 'dRlb_1',		20,   0,	4,		'#Delta_{R}^{lb}_{1}'),
+		observable( 'Double_t', 'dRlb_2',		20,   0,	4,		'#Delta_{R}^{lb}_{2}'),
+		observable( 'Double_t', 'mll',			20,   0,	800e+03,	'm_{ll}'	),
+		observable( 'Double_t', 'pTll',			20,   0,	500e+03,	'p_{T}^{ll}'	),
+		observable( 'Double_t', 'dRll',			20,   0,	6,		'#Delta_{R}^{ll}'),
+		observable( 'Double_t', 'mbb',			20,   0,	1000e+03,	'm_{bb}'	),
+		observable( 'Double_t', 'pTbb',			20,   0,	500e+03,	'p_{T}^{bb}'	),
+		observable( 'Double_t', 'dRbb',			20,   0,	6,		'#Delta_{R}^{bb}'),
+		observable( 'float',	'top_pt',		20,   0,	800e+03,	'p_{T}(t)'	),
+		observable( 'float',	'top_eta',		20,   -5,	5,		'#eta(t)'	),
+		observable( 'float',	'top_phi',		20,   -3.14159, 3.14159,	'#phi(t)'	),
+		observable( 'float',	'top_m',		 5,   170e+03,	175e+03,	'm_{t}'		),
+		observable( 'float',	'top_e',		20,   0,	1400e+03,	'm_{t}'		),
+		observable( 'float',	'top_y',		20,   -2.9,	2.9,		'y(t)'		),
+		observable( 'float',	'tbar_pt',		20,   0,	800e+03,	'p_{T}(#bar{t})'),
+		observable( 'float',	'tbar_eta',		20,   -5,	5,		'#eta(#bar{t})'	),
+		observable( 'float',	'tbar_phi',		20,   -3.14159, 3.14159,	'#phi(#bar{t})'	),
+		observable( 'float',	'tbar_m',		 5,   170e+03,	175e+03,	'm_{#bar{t}}'	),
+		observable( 'float',	'tbar_e',		20,   0,	1400e+03,	'm_{#bar{t}}'	),
+		observable( 'float',	'tbar_y',		20,   -2.9,	2.9,		'y(#bar{t})'	),
+		observable( 'float',	'av_top_pt',		20,   0,	800e+03,	'Average p_{T}(t)'),
+		observable( 'float',	'av_top_eta',		20,   -5,	5,		'Average #eta(t)'),
+		observable( 'float',	'av_top_phi',		20,   -3.14159, 3.14159,	'Average #phi(t)'),
+		observable( 'float',	'av_top_m',		 5,   170e+03,	175e+03,	'Average m_{t}'	),
+		observable( 'float',	'av_top_e',		20,   0,	1400e+03,	'Average m_{t}'	),
+		observable( 'float',	'av_top_y',		20,   -2.9,	2.9,		'Average y(t)'	),
+		observable( 'float',	'ttbar_pt',		20,   0,	800e+03,	'p_{T}(t#bar{t})'),
+		observable( 'float',	'ttbar_eta',		20,   -5,	5,		'#eta(t#bar{t})'),
+		observable( 'float',	'ttbar_phi',		20,   -3.14159, 3.14159,	'#phi(t#bar{t})'),
+		observable( 'float',	'ttbar_m',		20,   0,	2000e+03,	'm_{t#bar{t}}'	),
+		observable( 'float',	'ttbar_e',		20,   0,	2500e+03,	'm_{t#bar{t}}'	),
+		observable( 'float',	'ttbar_y',		20,   -2.9,	2.9,		'y(t#bar{t})'	),
+		observable( 'float',	'ttbar_pout',		20,   -300e+03,	300e+03,	'p_{out}(t#bar{t})')
+		observable( 'float',	'nu_pt',		20,   0,	500e+03,	'p_{T}(#nu)'	),
+		observable( 'float',	'nu_eta',		20,   -5,	5,		'#eta(#nu)'	),
+		observable( 'float',	'nu_phi',		20,   -3.14159, 3.14159,	'#phi(#nu)'	),
+		observable( 'float',	'nu_m',			20,   0,	10,		'm_{#nu}'	),
+		observable( 'float',	'nu_e',			20,   0,	800e+03,	'm_{#nu}'	),
+		observable( 'float',	'nu_y',			20,   -2.9,	2.9,		'y(#nu)'	),
+		observable( 'float',	'nubar_pt',		20,   0,	500e+03,	'p_{T}(#bar{#nu})'),
+		observable( 'float',	'nubar_eta',		20,   -5,	5,		'#eta(#bar{#nu})'),
+		observable( 'float',	'nubar_phi',		20,   -3.14159, 3.14159,	'#phi(#bar{#nu})'),
+		observable( 'float',	'nubar_m',		20,   0,	10,		'm_{#bar{#nu}}'	),
+		observable( 'float',	'nubar_e',		20,   0,	800e+03,	'm_{#bar{#nu}}'	),
+		observable( 'float',	'nubar_y',		20,   -2.9,	2.9,		'y(#bar{#nu})'	),
+		observable( 'float',	'Wp_pt',		20,   0,	500e+03,	'p_{T}(W^{+})'	),
+		observable( 'float',	'Wp_eta',		20,   -5,	5,		'#eta(W^{+})'	),
+		observable( 'float',	'Wp_phi',		20,   -3.14159, 3.14159,	'#phi(W^{+})'	),
+		observable( 'float',	'Wp_m',			20,   0,	400e+03,	'm_{W^{+}}'	),
+		observable( 'float',	'Wp_e',			20,   0,	1500e+03,	'm_{W^{+}}'	),
+		observable( 'float',	'Wp_y',			20,   -2.9,	2.9,		'y(W^{+})'	),
+		observable( 'float',	'Wm_pt',		20,   0,	500e+03,	'p_{T}(W^{-})'	),
+		observable( 'float',	'Wm_eta',		20,   -5,	5,		'#eta(W^{-})'	),
+		observable( 'float',	'Wm_phi',		20,   -3.14159, 3.14159,	'#phi(W^{-})'	),
+		observable( 'float',	'Wm_m',			20,   0,	400e+03,	'm_{W^{-}}'	),
+		observable( 'float',	'Wm_e',			20,   0,	1500e+03,	'm_{W^{-}}'	),
+		observable( 'float',	'Wm_y',			20,   -2.9,	2.9,		'y(W^{-})'	)
 		]
 
     # Create output directories
