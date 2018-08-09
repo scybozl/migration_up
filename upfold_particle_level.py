@@ -22,7 +22,7 @@ if __name__ == '__main__':
     #*******************************************************************************#
     #                                                                               #
     # Author : Ludovic Scyboz (scyboz@mpp.mpg.de)                                   #
-    # Date       : 28.02.2018                                                       #
+    # Date   : 28.02.2018                                                           #
     #                                                                               #
     #################################################################################
 
@@ -129,9 +129,12 @@ if __name__ == '__main__':
 
 	norm_1 = reco_folded[i].Integral()
 	reco_folded[i].Sumw2(kTRUE)
-	reco_folded[i].Scale(1./norm_1)
+	if norm_1 != 0:
+	    reco_folded[i].Scale(1./norm_1)
 	norm_2 = reco_histograms[i].Integral()
 	reco_histograms[i].Sumw2(kTRUE)
-	reco_histograms[i].Scale(1./norm_2)
+	if norm_2 != 0:
+	    reco_histograms[i].Scale(1./norm_2)
 
-	ratioPlotATLAS( reco_folded[i], reco_histograms[i], output_directory + '/' + Aij.GetName().split('tMatrix_')[1], 1, 0 )
+	ratioPlotATLAS( reco_folded[i], reco_histograms[i], output_directory + '/' + Aij.GetName().split('tMatrix_')[1],
+			legHist1, legHist2, 0 )
