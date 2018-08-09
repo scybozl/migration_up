@@ -6,7 +6,7 @@ from plotting.plotting_helpers import ratioPlot
 
 ## Ratio plot class
 
-def ratioPlotATLAS(firstHist,secondHist,title,leg=0,particle=1):
+def ratioPlotATLAS(firstHist,secondHist,title,legHist1,legHist2,particleLevel=0):
 
     hist1 = firstHist.Clone("hist1")
     hist2 = secondHist.Clone("hist2")
@@ -41,16 +41,12 @@ def ratioPlotATLAS(firstHist,secondHist,title,leg=0,particle=1):
                        , putTextAtTheTop = True, putTextAtTheBottom = True
     )
     atlasLabels = ["#font[72]{ATLAS} Preliminary", "#font[12]{Simulation}", "13 TeV"]
-    if ( particle ): atlasLabels += ["Particle level"]
+    if ( particleLevel ): atlasLabels += ["Particle level"]
     else: atlasLabels += ["Reco level"]
     lh.addLabel(atlasLabels)
     legList = []
-    if ( particle ):
-      legList.append([hist1, "Powheg+Pythia8", "l"])
-      legList.append([hist2, "bb4l", "l"])
-    else:
-      legList.append([hist1, "Powheg+Pythia8", "l"])
-      legList.append([hist2, "bb4l #times A_{ij}(PP8) ", "l"])
+    legList.append([hist1, legHist1, "l"])
+    legList.append([hist2, legHist2, "l"])
 
     lh.addLegend([l[1] for l in legList])
     decorations = [""]
