@@ -319,4 +319,5 @@ class sample:
 		    self.reco_folded[i].hist.SetBinContent(xbins, sum)
 		    self.reco_folded[i].hist.SetBinError( xbins, sqrt(error2) )
 
-		ratioPlotATLAS( self.reco_histograms[i].hist, self.reco_folded[i].hist, identifier + '/' + obs.name, 1 )
+		ratioPlotATLAS( self.reco_histograms[i].hist, self.reco_folded[i].hist, identifier + '/' + obs.name,
+				legHist1 = 'Truth reco', legHist2 = 'Folded reco', particleLevel = 0 )
