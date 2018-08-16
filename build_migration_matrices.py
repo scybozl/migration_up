@@ -37,15 +37,15 @@ if __name__ == '__main__':
     parser.add_argument('textfile', metavar='input_mtXXX_DSID_xxxxxx_(FS).txt', type=str, 
 				help='the text file containing a list of samples to run over (has to\
 				be a simulated sample)')
-    parser.add_argument("-N", "--numberOfEvents", required=False, type=str, \
+    parser.add_argument("-n", "--numberOfEvents", required=False, type=str, \
 				dest="EVTNUM", default="-99", help="Number of events in the sample for bookkeeping")
-    parser.add_argument("-S", "--stats", required=False, type=str, \
+    parser.add_argument("-s", "--stats", required=False, type=str, \
 				dest="STAT", default="gaussian", help="Multinomial efficiencies/fakes treatment \
 				for comparison (default=gaussian) \n" + colors.WARNING + \
 				"Beware: these uncertainties are not propagated, just plotted" + colors.ENDC)
-    parser.add_argument("-C", "--closureTests", action='store_true', required=False, \
+    parser.add_argument("-c", "--closureTests", action='store_true', required=False, \
 				dest="CLOS", default=False, help="Whether to run closure tests or not [False]")
-    parser.add_argument("-D", "--draw", action='store_true', required=False, \
+    parser.add_argument("-d", "--draw", action='store_true', required=False, \
 				dest="DRAW", default=False, help="Whether to draw histograms or not [False]")
     args = parser.parse_args()
 
@@ -122,7 +122,7 @@ if __name__ == '__main__':
 		observable( 'float',	'ttbar_m',		20,   0,	2000e+03,	'm_{t#bar{t}}'	),
 		observable( 'float',	'ttbar_e',		20,   0,	2500e+03,	'm_{t#bar{t}}'	),
 		observable( 'float',	'ttbar_y',		20,   -2.9,	2.9,		'y(t#bar{t})'	),
-		observable( 'float',	'ttbar_pout',		20,   -300e+03,	300e+03,	'p_{out}(t#bar{t})')
+		observable( 'float',	'ttbar_pout',		20,   -300e+03,	300e+03,	'p_{out}(t#bar{t})'),
 		observable( 'float',	'nu_pt',		20,   0,	500e+03,	'p_{T}(#nu)'	),
 		observable( 'float',	'nu_eta',		20,   -5,	5,		'#eta(#nu)'	),
 		observable( 'float',	'nu_phi',		20,   -3.14159, 3.14159,	'#phi(#nu)'	),
@@ -151,7 +151,7 @@ if __name__ == '__main__':
 
     # Create output directories
     os.system( 'mkdir ' + ' '.join([output_migr, output_eff, output_facc, output_hists]) )
-    if clos == True: os.system( 'mkdir ' + output_clos ) 
+    if clos: os.system( 'mkdir ' + output_clos ) 
 
     # Declare migration matrices, reco/part. histograms, eff. & fake hits
     # Load ntuples, set up trees and various objects
@@ -166,13 +166,13 @@ if __name__ == '__main__':
 
 
     sample.migration_normalize()
-    if draw == True: sample.migration_draw(output_migr)
+    if draw: sample.migration_draw(output_migr)
     sample.migration_write_output(output_migr)
 
     sample.efficiencies_write_output(output_eff)
     sample.fakes_write_output(output_facc)
 
-    if draw == True:
+    if draw:
 	sample.efficiencies_draw(output_eff)
 	sample.fakes_draw(output_facc)
 
@@ -182,4 +182,4 @@ if __name__ == '__main__':
 	    sample.efficiencies_bi_draw(output_eff)
 	    sample.fakes_bi_draw(output_facc)
 
-    if clos == True: sample.closure_tests(output_clos)
+    if clos: sample.closure_tests(output_clos)

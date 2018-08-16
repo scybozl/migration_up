@@ -37,12 +37,20 @@ if __name__ == '__main__':
 				default='comp_histos', metavar = 'Plot directory',
 				type=str, help='Name of the directory where the \
 				plots will be generated')
-
+    parser.add_argument("-d", "--draw", action='store_true', required=False, \
+                                dest="DRAW", default=False, help='Whether to draw histograms or not [False]')
+    parser.add_argument("-x", "--normalize", required=False, dest='NORM',
+				default=1.0, metavar = 'Normalization constant',
+				type=float, help='Constant to which to normalize the reco-level (xsec, ...)')
     args = parser.parse_args()
 
+    draw = args.DRAW
+    norm = args.NORM
     output_directory = args.OUTPUT
-    folder_exists( output_directory )
-    os.system( 'mkdir ' + output_directory )
+
+    if draw:
+	folder_exists( output_directory )
+	os.system( 'mkdir ' + output_directory )
 
     [migr, eff, facc, reco] = find_matrices( args.inputfolder )
     part = find_part_hists( args.inputfolder )
@@ -130,11 +138,11 @@ if __name__ == '__main__':
 	norm_1 = reco_folded[i].Integral()
 	reco_folded[i].Sumw2(kTRUE)
 	if norm_1 != 0:
-	    reco_folded[i].Scale(1./norm_1)
+	    reco_folded[i].Scale(norm/norm_1)
 	norm_2 = reco_histograms[i].Integral()
 	reco_histograms[i].Sumw2(kTRUE)
 	if norm_2 != 0:
-	    reco_histograms[i].Scale(1./norm_2)
+	    reco_histograms[i].Scale(norm/norm_2)
 
-	ratioPlotATLAS( reco_folded[i], reco_histograms[i], output_directory + '/' + Aij.GetName().split('tMatrix_')[1],
-			legHist1, legHist2, 0 )
+	if draw: ratioPlotATLAS( reco_folded[i], reco_histograms[i], output_directory + '/' + Aij.GetName().split('tMatrix_')[1],
+			legHist1="Folded 1", legHist2="Truth 2", particleLevel=0 )
