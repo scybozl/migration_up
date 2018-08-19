@@ -1,3 +1,39 @@
-mt172p5_18-04-18--11.59.45		120K	AF2	"corrected migration matrices uncertainties"
-mt172p5_18-04-18--12.20.10		120K	FullSim	"corrected migration matrices uncertainties"
-mt172p5_18-04-18--13.20.32		susbset	AF2	"1st root file from Andrea"	
+################################################################
+
+			TOP MASS UPFOLDING
+
+################################################################
+
+Author: Ludovic Scyboz (scyboz@mpp.mpg.de)
+
+
+The goal of this piece of code is to transfer particle-level MC
+predictions to reconstruction-level observables. In the context
+of the measurement of the top mass, this is especially useful
+to test systematics uncertainties in a realistic analysis
+(typically, the top mass is most precisely measured by fitting
+distributions at reconstruction-level that are sensitive to the
+top mass).
+
+
+For an observable defined at both particle-level and reco-level,
+one can extract migration matrices A_ij, efficiencies eps_i and 
+"fake" hits rates f_acc,j. The migration from bin j (particle-
+level) to bin i (reco-level) is then defined as:
+
+
+	R_i = 1 / f_acc,i * A_ij * (P_j e_eff,j)
+
+
+where R_i is the number of events in bin i of the reco-level
+observable, and P_j the number of events in bin j of the
+particle-level observable. 
+
+****************************************************************
+
+	Extraction of the migration matrices
+
+****************************************************************
+
+For each observable, the migration matrix, efficiency and fake
+rate is extracted by 
