@@ -1,0 +1,93 @@
+LibraryNames libTopEventSelectionTools libTopEventReconstructionTools libTopMass_13TeV_Online
+
+# GRL for full 2015+2016+2017 dataset (release 21)
+GRLFile data15_13TeV/20170619/physics_25ns_21.0.19.xml data16_13TeV/20170605/physics_25ns_21.0.19.xml data17_13TeV/20171130/physics_25ns_Triggerno17e33prim.xml
+GRLDir GoodRunsLists
+
+# MC16a pileup profile
+PRWConfigFiles dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16a.v1/prw.merged.root
+PRWCustomScaleFactor 1.0/1.03:1.0:1.0/1.18
+# lumicalc for full 2015+2016 dataset (release 21, OflLumi-13TeV-008)
+PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root GoodRunsLists/data16_13TeV/20170605/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-008.root
+
+ElectronCollectionName Electrons
+MuonCollectionName Muons
+JetCollectionName AntiKt4EMTopoJets
+# Turning off LargeR jets until ctest uses updated derivation file AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
+LargeJetCollectionName None 
+LargeRJetPt 200000
+LargeRJetEta 2
+LargeJetSubstructure None
+LargeRToptaggingConfigFile NFC
+TauCollectionName None
+PhotonCollectionName None
+
+TruthCollectionName TruthParticles
+TruthJetCollectionName AntiKt4TruthWZJets
+TruthLargeRJetCollectionName AntiKt10TruthTrimmedPtFrac5SmallR20Jets
+TopPartonHistory ttbar
+TopParticleLevel True
+TruthBlockInfo False
+PDFInfo True
+MCGeneratorWeights Nominal
+
+ObjectSelectionName top::ObjectLoaderStandardCuts
+OutputFormat top::MassEventSaver
+OutputEvents SelectedEvents
+OutputFilename output.root
+PerfStats No
+
+Systematics Nominal
+JetUncertainties_NPModel CategoryReduction
+JetUncertainties_BunchSpacing 25ns
+LargeRJESUncertaintyConfig Split23,Tau32WTA
+
+ElectronID TightLH
+ElectronIDLoose LooseAndBLayerLH
+MuonQuality Medium
+MuonQualityLoose Loose
+
+ElectronIsolation Gradient
+ElectronIsolationLoose Loose
+MuonIsolation Gradient
+MuonIsolationLoose Loose
+
+# DoTight/DoLoose to activate the loose and tight trees
+# each should be one in: Data, MC, Both, False
+DoTight Both
+DoLoose Data
+
+# definitions used for OR
+ElectronPt 20000
+MuonPt 20000
+JetPt 25000
+
+# Turn on MetaData to pull IsAFII from metadata
+UseAodMetaData True
+
+BTaggingWP FixedCutBEff_77
+
+KLFitterTopMassFixed False
+KLFitterSaveAllPermutations False
+KLFitterJetSelectionMode kBtagPrioritySixJets
+KLFitterBTaggingMethod kVeto
+
+# Example of how to remove systematics from b-tag EV
+#BTaggingSystExcludedFromEV FT_EFF_JET_BJES_Response;FT_EFF_JET_EffectiveNP_1;FT_EFF_EG_RESOLUTION_ALL
+
+# Saving bootstrapping weights
+SaveBootstrapWeights False
+NumberOfBootstrapReplicas 100
+
+SELECTION all_reco
+INITIAL
+GRL
+GOODCALO
+PRIVTX
+RECO_LEVEL
+SAVE
+
+SELECTION all_part
+PRIVTX
+PARTICLE_LEVEL
+SAVE
