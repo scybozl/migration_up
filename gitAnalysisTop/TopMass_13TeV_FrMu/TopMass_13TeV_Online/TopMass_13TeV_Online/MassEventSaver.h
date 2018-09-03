@@ -48,7 +48,7 @@ namespace top{
       std::vector<double> m_tma_original_rbq;
 
       bool pseudotop; // Use all definitions of the pseudo-top available
-      double m_tma_pseudotop0_mtop_param;
+      double m_tma_pseudotop_mtop_param;
       double m_tma_pseudotop1_mtop_param;
       double m_tma_pseudotop2_mtop_param;
       double m_tma_pseudotop3_mtop_param;
@@ -158,7 +158,7 @@ namespace top{
 
       // particle level
 
-      double m_tma_particle_pseudotop0_mtop_param;
+      double m_tma_particle_pseudotop_mtop_param;
       double m_tma_particle_pseudotop1_mtop_param;
       double m_tma_particle_pseudotop2_mtop_param;
       double m_tma_particle_pseudotop3_mtop_param;

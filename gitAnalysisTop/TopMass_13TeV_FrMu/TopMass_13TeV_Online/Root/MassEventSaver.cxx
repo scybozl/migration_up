@@ -16,141 +16,141 @@ namespace top{
   ///-- Construcutor --///
   MassEventSaver::MassEventSaver() :
     pseudotop(true),
-    m_tma_pseudotop0_mtop_param(0.),
-    m_tma_pseudotop1_mtop_param(0.),
-    m_tma_pseudotop2_mtop_param(0.),
-    m_tma_pseudotop3_mtop_param(0.),
-    m_tma_pseudotop_mw(0.),
-    m_tma_pseudotop_rbq(0.),
-    m_tma_nbjets(0.),
-    m_tma_njets(0.),
-    m_tma_etdr(0.),
-    m_tma_met(0.),
-    m_tma_met_ex(0.),
-    m_tma_met_ey(0.),
-    m_tma_met_phi(0.),
-    m_tma_mlb_minavg(0.),
-    m_tma_mlb_minavglow(0.),
-    m_tma_mlb_minavghigh(0.),
-    m_tma_mlb_minmax(0.),
-    m_tma_mlb_minmaxlow(0.),
-    m_tma_mlb_minmaxavg(0.),
-    m_tma_pTlb_1(0.),
-    m_tma_pTlb_2(0.),
-    m_tma_dRlb_1(0.),
-    m_tma_dRlb_2(0.),
-    m_tma_mll(0.),
-    m_tma_pTll(0.),
-    m_tma_dRll(0.),
-    m_tma_mbb(0.),
-    m_tma_pTbb(0.),
-    m_tma_dRbb(0.),
-    m_tma_Rbq_avgLJ(0.),
-    m_tma_Rbq_leadLJ(0.),
-    m_tma_top_pt(0.),
-    m_tma_top_eta(0.),
-    m_tma_top_phi(0.),
-    m_tma_top_m(0.),
-    m_tma_top_e(0.),
-    m_tma_top_y(0.),
-    m_tma_tbar_pt(0.),
-    m_tma_tbar_eta(0.),
-    m_tma_tbar_phi(0.),
-    m_tma_tbar_m(0.),
-    m_tma_tbar_e(0.),
-    m_tma_tbar_y(0.),
-    m_tma_av_top_pt (0.),
-    m_tma_av_top_eta(0.),
-    m_tma_av_top_phi(0.),
-    m_tma_av_top_m(0.),
-    m_tma_av_top_e(0.),
-    m_tma_av_top_y(0.),
-    m_tma_ttbar_pt(0.),
-    m_tma_ttbar_eta(0.),
-    m_tma_ttbar_phi(0.),
-    m_tma_ttbar_m(0.),
-    m_tma_ttbar_e(0.),
-    m_tma_ttbar_y(0.),
-    m_tma_ttbar_pout(0.),
-    m_tma_nu_pt(0.),
-    m_tma_nu_eta(0.),
-    m_tma_nu_phi(0.),
-    m_tma_nu_m(0.),
-    m_tma_nu_e(0.),
-    m_tma_nu_y(0.),
-    m_tma_nubar_pt(0.),
-    m_tma_nubar_eta(0.),
-    m_tma_nubar_phi(0.),
-    m_tma_nubar_m(0.),
-    m_tma_nubar_e(0.),
-    m_tma_nubar_y(0.),
+    m_tma_pseudotop_mtop_param(-99.),
+    m_tma_pseudotop1_mtop_param(-99.),
+    m_tma_pseudotop2_mtop_param(-99.),
+    m_tma_pseudotop3_mtop_param(-99.),
+    m_tma_pseudotop_mw(-99.),
+    m_tma_pseudotop_rbq(-99.),
+    m_tma_nbjets(-99.),
+    m_tma_njets(-99.),
+    m_tma_etdr(-99.),
+    m_tma_met(-99.),
+    m_tma_met_ex(-99.),
+    m_tma_met_ey(-99.),
+    m_tma_met_phi(-99.),
+    m_tma_mlb_minavg(-99.),
+    m_tma_mlb_minavglow(-99.),
+    m_tma_mlb_minavghigh(-99.),
+    m_tma_mlb_minmax(-99.),
+    m_tma_mlb_minmaxlow(-99.),
+    m_tma_mlb_minmaxavg(-99.),
+    m_tma_pTlb_1(-99.),
+    m_tma_pTlb_2(-99.),
+    m_tma_dRlb_1(-99.),
+    m_tma_dRlb_2(-99.),
+    m_tma_mll(-99.),
+    m_tma_pTll(-99.),
+    m_tma_dRll(-99.),
+    m_tma_mbb(-99.),
+    m_tma_pTbb(-99.),
+    m_tma_dRbb(-99.),
+    m_tma_Rbq_avgLJ(-99.),
+    m_tma_Rbq_leadLJ(-99.),
+    m_tma_top_pt(-99.),
+    m_tma_top_eta(-99.),
+    m_tma_top_phi(-99.),
+    m_tma_top_m(-99.),
+    m_tma_top_e(-99.),
+    m_tma_top_y(-99.),
+    m_tma_tbar_pt(-99.),
+    m_tma_tbar_eta(-99.),
+    m_tma_tbar_phi(-99.),
+    m_tma_tbar_m(-99.),
+    m_tma_tbar_e(-99.),
+    m_tma_tbar_y(-99.),
+    m_tma_av_top_pt (-99.),
+    m_tma_av_top_eta(-99.),
+    m_tma_av_top_phi(-99.),
+    m_tma_av_top_m(-99.),
+    m_tma_av_top_e(-99.),
+    m_tma_av_top_y(-99.),
+    m_tma_ttbar_pt(-99.),
+    m_tma_ttbar_eta(-99.),
+    m_tma_ttbar_phi(-99.),
+    m_tma_ttbar_m(-99.),
+    m_tma_ttbar_e(-99.),
+    m_tma_ttbar_y(-99.),
+    m_tma_ttbar_pout(-99.),
+    m_tma_nu_pt(-99.),
+    m_tma_nu_eta(-99.),
+    m_tma_nu_phi(-99.),
+    m_tma_nu_m(-99.),
+    m_tma_nu_e(-99.),
+    m_tma_nu_y(-99.),
+    m_tma_nubar_pt(-99.),
+    m_tma_nubar_eta(-99.),
+    m_tma_nubar_phi(-99.),
+    m_tma_nubar_m(-99.),
+    m_tma_nubar_e(-99.),
+    m_tma_nubar_y(-99.),
 
-    m_tma_particle_pseudotop0_mtop_param(0.),
-    m_tma_particle_pseudotop1_mtop_param(0.),
-    m_tma_particle_pseudotop2_mtop_param(0.),
-    m_tma_particle_pseudotop3_mtop_param(0.),
-    m_tma_particle_pseudotop_mw(0.),
-    m_tma_particle_pseudotop_rbq(0.),
-    m_tma_particle_nbjets(0.),
-    m_tma_particle_njets(0.),
-    m_tma_particle_etdr(0.),
-    m_tma_particle_met(0.),
-    m_tma_particle_met_ex(0.),
-    m_tma_particle_met_ey(0.),
-    m_tma_particle_met_phi(0.),
-    m_tma_particle_mlb_minavg(0.),
-    m_tma_particle_mlb_minavglow(0.),
-    m_tma_particle_mlb_minavghigh(0.),
-    m_tma_particle_mlb_minmax(0.),
-    m_tma_particle_mlb_minmaxlow(0.),
-    m_tma_particle_mlb_minmaxavg(0.),
-    m_tma_particle_pTlb_1(0.),
-    m_tma_particle_pTlb_2(0.),
-    m_tma_particle_dRlb_1(0.),
-    m_tma_particle_dRlb_2(0.),
-    m_tma_particle_mll(0.),
-    m_tma_particle_pTll(0.),
-    m_tma_particle_dRll(0.),
-    m_tma_particle_mbb(0.),
-    m_tma_particle_pTbb(0.),
-    m_tma_particle_dRbb(0.),
-    m_tma_particle_top_pt(0.),
-    m_tma_particle_top_eta(0.),
-    m_tma_particle_top_phi(0.),
-    m_tma_particle_top_m(0.),
-    m_tma_particle_top_e(0.),
-    m_tma_particle_top_y(0.),
-    m_tma_particle_tbar_pt(0.),
-    m_tma_particle_tbar_eta(0.),
-    m_tma_particle_tbar_phi(0.),
-    m_tma_particle_tbar_m(0.),
-    m_tma_particle_tbar_e(0.),
-    m_tma_particle_tbar_y(0.),
-    m_tma_particle_av_top_pt (0.),
-    m_tma_particle_av_top_eta(0.),
-    m_tma_particle_av_top_phi(0.),
-    m_tma_particle_av_top_m(0.),
-    m_tma_particle_av_top_e(0.),
-    m_tma_particle_av_top_y(0.),
-    m_tma_particle_ttbar_pt(0.),
-    m_tma_particle_ttbar_eta(0.),
-    m_tma_particle_ttbar_phi(0.),
-    m_tma_particle_ttbar_m(0.),
-    m_tma_particle_ttbar_e(0.),
-    m_tma_particle_ttbar_y(0.),
-    m_tma_particle_ttbar_pout(0.),
-    m_tma_particle_nu_pt(0.),
-    m_tma_particle_nu_eta(0.),
-    m_tma_particle_nu_phi(0.),
-    m_tma_particle_nu_m(0.),
-    m_tma_particle_nu_e(0.),
-    m_tma_particle_nu_y(0.),
-    m_tma_particle_nubar_pt(0.),
-    m_tma_particle_nubar_eta(0.),
-    m_tma_particle_nubar_phi(0.),
-    m_tma_particle_nubar_m(0.),
-    m_tma_particle_nubar_e(0.),
-    m_tma_particle_nubar_y(0.)
+    m_tma_particle_pseudotop_mtop_param(-99.),
+    m_tma_particle_pseudotop1_mtop_param(-99.),
+    m_tma_particle_pseudotop2_mtop_param(-99.),
+    m_tma_particle_pseudotop3_mtop_param(-99.),
+    m_tma_particle_pseudotop_mw(-99.),
+    m_tma_particle_pseudotop_rbq(-99.),
+    m_tma_particle_nbjets(-99.),
+    m_tma_particle_njets(-99.),
+    m_tma_particle_etdr(-99.),
+    m_tma_particle_met(-99.),
+    m_tma_particle_met_ex(-99.),
+    m_tma_particle_met_ey(-99.),
+    m_tma_particle_met_phi(-99.),
+    m_tma_particle_mlb_minavg(-99.),
+    m_tma_particle_mlb_minavglow(-99.),
+    m_tma_particle_mlb_minavghigh(-99.),
+    m_tma_particle_mlb_minmax(-99.),
+    m_tma_particle_mlb_minmaxlow(-99.),
+    m_tma_particle_mlb_minmaxavg(-99.),
+    m_tma_particle_pTlb_1(-99.),
+    m_tma_particle_pTlb_2(-99.),
+    m_tma_particle_dRlb_1(-99.),
+    m_tma_particle_dRlb_2(-99.),
+    m_tma_particle_mll(-99.),
+    m_tma_particle_pTll(-99.),
+    m_tma_particle_dRll(-99.),
+    m_tma_particle_mbb(-99.),
+    m_tma_particle_pTbb(-99.),
+    m_tma_particle_dRbb(-99.),
+    m_tma_particle_top_pt(-99.),
+    m_tma_particle_top_eta(-99.),
+    m_tma_particle_top_phi(-99.),
+    m_tma_particle_top_m(-99.),
+    m_tma_particle_top_e(-99.),
+    m_tma_particle_top_y(-99.),
+    m_tma_particle_tbar_pt(-99.),
+    m_tma_particle_tbar_eta(-99.),
+    m_tma_particle_tbar_phi(-99.),
+    m_tma_particle_tbar_m(-99.),
+    m_tma_particle_tbar_e(-99.),
+    m_tma_particle_tbar_y(-99.),
+    m_tma_particle_av_top_pt (-99.),
+    m_tma_particle_av_top_eta(-99.),
+    m_tma_particle_av_top_phi(-99.),
+    m_tma_particle_av_top_m(-99.),
+    m_tma_particle_av_top_e(-99.),
+    m_tma_particle_av_top_y(-99.),
+    m_tma_particle_ttbar_pt(-99.),
+    m_tma_particle_ttbar_eta(-99.),
+    m_tma_particle_ttbar_phi(-99.),
+    m_tma_particle_ttbar_m(-99.),
+    m_tma_particle_ttbar_e(-99.),
+    m_tma_particle_ttbar_y(-99.),
+    m_tma_particle_ttbar_pout(-99.),
+    m_tma_particle_nu_pt(-99.),
+    m_tma_particle_nu_eta(-99.),
+    m_tma_particle_nu_phi(-99.),
+    m_tma_particle_nu_m(-99.),
+    m_tma_particle_nu_e(-99.),
+    m_tma_particle_nu_y(-99.),
+    m_tma_particle_nubar_pt(-99.),
+    m_tma_particle_nubar_eta(-99.),
+    m_tma_particle_nubar_phi(-99.),
+    m_tma_particle_nubar_m(-99.),
+    m_tma_particle_nubar_e(-99.),
+    m_tma_particle_nubar_y(-99.)
   {
   }
   
@@ -168,7 +168,7 @@ namespace top{
       systematicTree->makeOutputVariable(m_tma_klfitter_mtop_param, "tma_klfitter_mtop_param");
       systematicTree->makeOutputVariable(m_tma_original_mw,         "tma_original_mw");
       systematicTree->makeOutputVariable(m_tma_original_rbq,        "tma_original_rbq");
-      systematicTree->makeOutputVariable(m_tma_pseudotop0_mtop_param, "tma_pseudotop0_mtop_param");
+      systematicTree->makeOutputVariable(m_tma_pseudotop_mtop_param, "tma_pseudotop_mtop_param");
       systematicTree->makeOutputVariable(m_tma_pseudotop1_mtop_param, "tma_pseudotop1_mtop_param");
       systematicTree->makeOutputVariable(m_tma_pseudotop2_mtop_param, "tma_pseudotop2_mtop_param");
       systematicTree->makeOutputVariable(m_tma_pseudotop3_mtop_param, "tma_pseudotop3_mtop_param");
@@ -276,7 +276,7 @@ namespace top{
 
   if ( topConfig()->doTopParticleLevel() ){
 
-      particleLevelTreeManager()->makeOutputVariable(m_tma_particle_pseudotop0_mtop_param, "tma_pseudotop0_mtop_param");
+      particleLevelTreeManager()->makeOutputVariable(m_tma_particle_pseudotop_mtop_param, "tma_pseudotop_mtop_param");
       particleLevelTreeManager()->makeOutputVariable(m_tma_particle_pseudotop1_mtop_param, "tma_pseudotop1_mtop_param");
       particleLevelTreeManager()->makeOutputVariable(m_tma_particle_pseudotop2_mtop_param, "tma_pseudotop2_mtop_param");
       particleLevelTreeManager()->makeOutputVariable(m_tma_particle_pseudotop3_mtop_param, "tma_pseudotop3_mtop_param");
@@ -385,10 +385,10 @@ namespace top{
   void MassEventSaver::saveEvent(const top::Event& event) 
   {
     // calculate here now the flat variables neccessary for the top mass analysis, want to avoid to recalculate them every time offline!
-    m_tma_nbjets = 0; 
-    m_tma_njets = 0; 
+    m_tma_nbjets = -99.; 
+    m_tma_njets = -99.; 
 
-    m_tma_mlb_minavg = 0.;
+    m_tma_mlb_minavg = -99.;
 
     m_tma_bjet_pt.clear();
     m_tma_bjet_eta.clear();
@@ -636,7 +636,7 @@ namespace top{
 
          miss.SetPxPyPzE(nuX, nuY, nuZ, nuE);
          t_lep = pb_lep + lep + miss;
-         m_tma_pseudotop0_mtop_param = 0.5*(t_lep.M() + t_had.M());
+         m_tma_pseudotop_mtop_param = 0.5*(t_lep.M() + t_had.M());
 
 	 if ( pseudotop == true ) {
 
@@ -979,10 +979,10 @@ void MassEventSaver::saveParticleLevelEvent(const top::ParticleLevelEvent& plEve
   bool lep_pos_set = false;
   bool lep_neg_set = false;
 
-  m_tma_particle_nbjets = 0;
-  m_tma_particle_njets = 0;
+  m_tma_particle_nbjets = -99.;
+  m_tma_particle_njets = -99.;
 
-  m_tma_particle_mlb_minavg = 0.;
+  m_tma_particle_mlb_minavg = -99.;
 
   m_tma_particle_bjet_pt.clear();
   m_tma_particle_bjet_eta.clear();
@@ -1031,85 +1031,6 @@ void MassEventSaver::saveParticleLevelEvent(const top::ParticleLevelEvent& plEve
   m_tma_particle_jet_phi.resize(m_tma_particle_njets);
   m_tma_particle_jet_e.resize(m_tma_particle_njets);
 
-/*  TLorentzVector blep_particle_original;
-  TLorentzVector bhad_particle_original;
-  TLorentzVector lq1_particle_original;
-  TLorentzVector lq2_particle_original;
-  TLorentzVector Whad_particle_original;
-
-  int nPermutations  = 0;
-  bool validKLFitter = false;
-
-  if (plEvent.m_KLFitterResults != nullptr) {
-
-    validKLFitter = true;
-    nPermutations = plEvent.m_KLFitterResults->size();
-
-  }
-
-std::cout << "nPermutations : " << nPermutations << std::endl;
-std::cout << validKLFitter << std::endl;
-    std::cout << "blep_index: " << blep_index << std::endl;
-    std::cout << "bhad_index: " << bhad_index << std::endl;
-    std::cout << "l1_index: " << lq1_index << std::endl;
-    std::cout << "l2_index: " << lq2_index << std::endl;
-
-
-  m_tma_particle_klfitter_mtop_param.resize(nPermutations);
-  m_tma_particle_original_mw.resize(nPermutations);
-  m_tma_particle_original_rbq.resize(nPermutations);
-
-  int iPerm = 0;
-
-  if (validKLFitter) {
-
-    for (const auto* const klPtr : *plEvent.m_KLFitterResults) {
-
-    int blep_index = klPtr->model_blep_jetIndex();
-    int bhad_index = klPtr->model_bhad_jetIndex();
-    int lq1_index  = klPtr->model_lq1_jetIndex();
-    int lq2_index  = klPtr->model_lq2_jetIndex();
- 
-    blep_particle_original.SetPtEtaPhiE((*plEvent.m_jets)[blep_index] -> pt()/1000.0,
-                   (*plEvent.m_jets)[blep_index] -> eta(),
-                   (*plEvent.m_jets)[blep_index] -> phi(),
-                   (*plEvent.m_jets)[blep_index] -> e()/1000.0);
-    
-    bhad_particle_original.SetPtEtaPhiE((*plEvent.m_jets)[bhad_index] -> pt()/1000.0,
-                   (*plEvent.m_jets)[bhad_index] -> eta(),
-                   (*plEvent.m_jets)[bhad_index] -> phi(),
-                   (*plEvent.m_jets)[bhad_index] -> e()/1000.0);
-        
-    lq1_particle_original.SetPtEtaPhiE((*plEvent.m_jets)[lq1_index] -> pt()/1000.0,
-                   (*plEvent.m_jets)[lq1_index] -> eta(),
-                   (*plEvent.m_jets)[lq1_index] -> phi(),
-                   (*plEvent.m_jets)[lq1_index] -> e()/1000.0);
-        
-    lq2_particle_original.SetPtEtaPhiE((*plEvent.m_jets)[lq2_index] -> pt()/1000.0,
-                   (*plEvent.m_jets)[lq2_index] -> eta(),
-                   (*plEvent.m_jets)[lq2_index] -> phi(),
-                   (*plEvent.m_jets)[lq2_index] -> e()/1000.0);
-        
-    Whad_particle_original = lq1_particle_original + lq2_particle_original;
-                                   
-    m_tma_particle_original_mw[iPerm] = Whad_particle_original.M(); 
-
-    if(m_tma_particle_nbjets == 1){
-      m_tma_particle_original_rbq[iPerm] = m_tma_particle_bjet_pt[0]/1000.0/((lq1_particle_original.Pt()+lq2_particle_original.Pt())*0.5);
-    }                              
-    else if(m_tma_particle_nbjets >= 2){
-      m_tma_particle_original_rbq[iPerm] = (m_tma_particle_bjet_pt[0] + m_tma_particle_bjet_pt[1])/1000.0/(lq1_particle_original.Pt()+lq2_particle_original.Pt());
-    }
-
-    int nr_param = klPtr->parameters().size();
-    m_tma_particle_klfitter_mtop_param[iPerm] = klPtr->parameters().at(nr_param-1);
-    ++iPerm;
-
-    }
-
-  }
-
-*/
   for (const auto & elPtr : * plEvent.m_electrons) {
 
     if (elPtr->charge() > 0) {
@@ -1144,6 +1065,105 @@ std::cout << validKLFitter << std::endl;
   m_tma_particle_met_ex    = plEvent.m_met->mpx();
   m_tma_particle_met_ey    = plEvent.m_met->mpy();
   m_tma_particle_met_phi   = plEvent.m_met->phi();
+
+
+  /// ----------------------------------------//
+  ///-- Pseudo Top Reconstruction: lepton+j --//
+  /// ----------------------------------------//
+
+
+
+  if (particle_goodLeptons.size() == 1 && particle_LJets.size() >= 2) {
+
+       if (m_tma_particle_nbjets >= 2){
+         TLorentzVector p_lep = particle_goodLeptons.at(0);
+         TLorentzVector p_b_lep, p_b_had;
+         if (particle_bJets[0].DeltaR(p_lep) < particle_bJets[1].DeltaR(p_lep)){
+           p_b_lep = particle_bJets[0];
+           p_b_had = particle_bJets[1];
+         }
+         else {
+           p_b_lep = particle_bJets[1];
+           p_b_had = particle_bJets[0];
+         }
+         TLorentzVector p_miss, p_t_lep, p_t_had;
+         p_t_had = p_b_had + particle_LJets[0] + particle_LJets[1];
+         m_tma_particle_pseudotop_mw = (particle_LJets[0] + particle_LJets[1]).M();
+         m_tma_particle_pseudotop_rbq = (p_b_lep.Pt() + p_b_had.Pt())/(particle_LJets[0].Pt() + particle_LJets[1].Pt());
+
+         Double_t mW = 80.309;
+         Double_t lE = p_lep.E();
+         Double_t lX = p_lep.Px();
+         Double_t lY = p_lep.Py();
+         Double_t lZ = p_lep.Pz();
+
+         Double_t nuE = plEvent.m_met->met();
+         Double_t nuX = plEvent.m_met->mpx();
+         Double_t nuY = plEvent.m_met->mpy();
+
+         Double_t wPz2 = pow(lE + nuE,2) - pow(lX + nuX,2) - pow(lY + nuY,2) - pow(mW,2);
+         Double_t nuZ = 0.;
+
+	 // Pseudo-top def. 0 (default)
+
+         if (wPz2 >= 0.) nuZ = abs(sqrt(wPz2) - lZ) <= abs(-sqrt(wPz2) - lZ) ? (sqrt(wPz2) - lZ) : (-sqrt(wPz2) - lZ);
+         else nuZ = -lZ;
+
+         p_miss.SetPxPyPzE(nuX, nuY, nuZ, nuE);
+         p_t_lep = p_b_lep + p_lep + p_miss;
+         m_tma_particle_pseudotop_mtop_param = 0.5*(p_t_lep.M() + p_t_had.M());
+         
+	 if ( pseudotop == true ) {
+
+	   // Pseudo-top def. 1
+
+           if (wPz2 >= 0.) nuZ = abs(sqrt(wPz2) - lZ) >= abs(-sqrt(wPz2) - lZ) ? (sqrt(wPz2) - lZ) : (-sqrt(wPz2) - lZ);
+           else nuZ = -lZ;
+
+           p_miss.SetPxPyPzE(nuX, nuY, nuZ, nuE);
+           p_t_lep = p_b_lep + p_lep + p_miss;
+           m_tma_particle_pseudotop1_mtop_param = 0.5*(p_t_lep.M() + p_t_had.M());
+
+	   // Pseudo-top def. 2
+
+           Double_t nuZ_1 = sqrt(wPz2) - lZ;
+           Double_t nuZ_2 = -sqrt(wPz2) - lZ;
+           TLorentzVector miss_1, miss_2;
+           miss_1.SetPxPyPzE(nuX, nuY, nuZ_1, nuE);
+           miss_2.SetPxPyPzE(nuX, nuY, nuZ_2, nuE);
+           TLorentzVector tlep_1 = p_b_lep + p_lep + miss_1;
+           TLorentzVector tlep_2 = p_b_lep + p_lep + miss_2;
+
+           nuZ = abs(tlep_1.M() - p_t_had.M()) <= abs(tlep_2.M() - p_t_had.M()) ? nuZ_1 : nuZ_2;
+
+           p_miss.SetPxPyPzE(nuX, nuY, nuZ, nuE);
+           p_t_lep = p_b_lep + p_lep + p_miss;
+           m_tma_particle_pseudotop2_mtop_param = 0.5*(p_t_lep.M() + p_t_had.M());
+
+	   // Pseudo-top def. 3
+
+           Double_t bE = p_b_lep.E();
+           Double_t bX = p_b_lep.Px();
+           Double_t bY = p_b_lep.Py();
+           Double_t bZ = p_b_lep.Pz();
+
+           Double_t tPz2 = pow(bZ,2) - pow(p_b_lep.M(),2) - pow(p_t_had.M(),2)
+                + pow(lE + nuE,2) - pow(lX + nuX,2) - pow(lY + nuY,2)
+                + 2*( (lE + nuE)*bE - (lX + nuX)*bX - (lY + nuY)*bY );
+           if (tPz2 >= 0.) nuZ = abs(sqrt(tPz2) - (lZ + bZ)) <= abs(-sqrt(tPz2) - (lZ + bZ)) ? (sqrt(tPz2) - (lZ + bZ)) : (-sqrt(tPz2) - (lZ + bZ));
+           else nuZ = - (lZ + bZ);
+
+           p_miss.SetPxPyPzE(nuX, nuY, nuZ, nuE);
+           p_t_lep = p_b_lep + p_lep + p_miss;
+           m_tma_particle_pseudotop3_mtop_param = 0.5*(p_t_lep.M() + p_t_had.M());
+         }
+       }
+
+       else if (m_tma_particle_nbjets == 1){
+         m_tma_particle_pseudotop_rbq = particle_bJets[0].Pt()/(particle_LJets[0].Pt() + particle_LJets[1].Pt())/2.;
+       }
+
+  }
 
   if(m_tma_particle_nbjets >= 2){ 
 
@@ -1368,106 +1388,6 @@ std::cout << validKLFitter << std::endl;
 
   }
 
-  /// ----------------------------------------//
-  ///-- Pseudo Top Reconstruction: lepton+j --//
-  /// ----------------------------------------//
-
-
-
-  if (particle_goodLeptons.size() == 1 && particle_LJets.size() >= 2) {
-
-       if (m_tma_particle_nbjets >= 2){
-         TLorentzVector p_lep = particle_goodLeptons.at(0);
-         TLorentzVector p_b_lep, p_b_had;
-         if (particle_bJets[0].DeltaR(p_lep) < particle_bJets[1].DeltaR(p_lep)){
-           p_b_lep = particle_bJets[0];
-           p_b_had = particle_bJets[1];
-         }
-         else {
-           p_b_lep = particle_bJets[1];
-           p_b_had = particle_bJets[0];
-         }
-         TLorentzVector p_miss, p_t_lep, p_t_had;
-         p_t_had = p_b_had + particle_LJets[0] + particle_LJets[1];
-         m_tma_particle_pseudotop_mw = (particle_LJets[0] + particle_LJets[1]).M();
-         m_tma_particle_pseudotop_rbq = (p_b_lep.Pt() + p_b_had.Pt())/(particle_LJets[0].Pt() + particle_LJets[1].Pt());
-
-         Double_t mW = 80.309;
-         Double_t lE = p_lep.E();
-         Double_t lX = p_lep.Px();
-         Double_t lY = p_lep.Py();
-         Double_t lZ = p_lep.Pz();
-
-         Double_t nuE = plEvent.m_met->met();
-         Double_t nuX = plEvent.m_met->mpx();
-         Double_t nuY = plEvent.m_met->mpy();
-
-         Double_t wPz2 = pow(lE + nuE,2) - pow(lX + nuX,2) - pow(lY + nuY,2) - pow(mW,2);
-         Double_t nuZ = 0.;
-
-	 // Pseudo-top def. 0 (default)
-
-         if (wPz2 >= 0.) nuZ = abs(sqrt(wPz2) - lZ) <= abs(-sqrt(wPz2) - lZ) ? (sqrt(wPz2) - lZ) : (-sqrt(wPz2) - lZ);
-         else nuZ = -lZ;
-
-         p_miss.SetPxPyPzE(nuX, nuY, nuZ, nuE);
-         p_t_lep = p_b_lep + p_lep + p_miss;
-         m_tma_particle_pseudotop0_mtop_param = 0.5*(p_t_lep.M() + p_t_had.M());
-         
-	 if ( pseudotop == true ) {
-
-	   // Pseudo-top def. 1
-
-           if (wPz2 >= 0.) nuZ = abs(sqrt(wPz2) - lZ) >= abs(-sqrt(wPz2) - lZ) ? (sqrt(wPz2) - lZ) : (-sqrt(wPz2) - lZ);
-           else nuZ = -lZ;
-
-           p_miss.SetPxPyPzE(nuX, nuY, nuZ, nuE);
-           p_t_lep = p_b_lep + p_lep + p_miss;
-           m_tma_particle_pseudotop1_mtop_param = 0.5*(p_t_lep.M() + p_t_had.M());
-
-	   // Pseudo-top def. 2
-
-           Double_t nuZ_1 = sqrt(wPz2) - lZ;
-           Double_t nuZ_2 = -sqrt(wPz2) - lZ;
-           TLorentzVector miss_1, miss_2;
-           miss_1.SetPxPyPzE(nuX, nuY, nuZ_1, nuE);
-           miss_2.SetPxPyPzE(nuX, nuY, nuZ_2, nuE);
-           TLorentzVector tlep_1 = p_b_lep + p_lep + miss_1;
-           TLorentzVector tlep_2 = p_b_lep + p_lep + miss_2;
-
-           nuZ = abs(tlep_1.M() - p_t_had.M()) <= abs(tlep_2.M() - p_t_had.M()) ? nuZ_1 : nuZ_2;
-
-           p_miss.SetPxPyPzE(nuX, nuY, nuZ, nuE);
-           p_t_lep = p_b_lep + p_lep + p_miss;
-           m_tma_particle_pseudotop2_mtop_param = 0.5*(p_t_lep.M() + p_t_had.M());
-
-	   // Pseudo-top def. 3
-
-           Double_t bE = p_b_lep.E();
-           Double_t bX = p_b_lep.Px();
-           Double_t bY = p_b_lep.Py();
-           Double_t bZ = p_b_lep.Pz();
-
-           Double_t tPz2 = pow(bZ,2) - pow(p_b_lep.M(),2) - pow(p_t_had.M(),2)
-                + pow(lE + nuE,2) - pow(lX + nuX,2) - pow(lY + nuY,2)
-                + 2*( (lE + nuE)*bE - (lX + nuX)*bX - (lY + nuY)*bY );
-           if (tPz2 >= 0.) nuZ = abs(sqrt(tPz2) - (lZ + bZ)) <= abs(-sqrt(tPz2) - (lZ + bZ)) ? (sqrt(tPz2) - (lZ + bZ)) : (-sqrt(tPz2) - (lZ + bZ));
-           else nuZ = - (lZ + bZ);
-
-           p_miss.SetPxPyPzE(nuX, nuY, nuZ, nuE);
-           p_t_lep = p_b_lep + p_lep + p_miss;
-           m_tma_particle_pseudotop3_mtop_param = 0.5*(p_t_lep.M() + p_t_had.M());
-         //std::cout << pb_lep.Pt() << "\n" << pb_had.Pt() << "\n" << LJets[0].Pt() << "\n" << LJets[1].Pt() << "\n\n";
-         }
-       }
-
-       else if (m_tma_nbjets == 1){
-//	 std::cout << "bjet pt : " << particle_bJets[0].Pt() << 
-//	 ", ljets :" << particle_bJets[0].Pt()/(particle_LJets[0].Pt() + particle_LJets[1].Pt())/2. << std::endl;
-//         m_tma_particle_pseudotop_rbq = particle_bJets[0].Pt()/(particle_LJets[0].Pt() + particle_LJets[1].Pt())/2.;
-       }
-
-    }
 
 top::EventSaverFlatNtuple::saveParticleLevelEvent(plEvent);
 
