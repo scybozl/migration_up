@@ -252,6 +252,10 @@ class sample:
 
 	def populate_down(self, identifier):
 
+	    self.reco_tree_chain.ResetBranchAddresses()
+	    self.part_tree_chain.SetBranchAddress( 'runNumber', AddressOf(self.part_level_struct, 'runNumber') )
+	    self.part_tree_chain.SetBranchAddress( 'eventNumber', AddressOf(self.part_level_struct, 'eventNumber') )
+
 	    part_hist_file = TFile( identifier + '/part_level.root', 'NEW' )
 
 	    print '*************************************\n'+\

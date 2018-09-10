@@ -176,8 +176,6 @@ if __name__ == '__main__':
 	sample.efficiencies_draw(output_eff)
 	sample.fakes_draw(output_facc)
 
-	## TODO: still some problem with the efficiency matrices w/ correct stats
-	##	 (fakes OK though)
         if stat == 'binomial': 
 	    sample.efficiencies_bi_draw(output_eff)
 	    sample.fakes_bi_draw(output_facc)
