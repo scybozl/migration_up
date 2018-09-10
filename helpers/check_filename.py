@@ -27,8 +27,11 @@ def check_filename( name, evtNum ):
 	DSID = name.split('DSID_')[1].split('_')[0]
 
 	if name.find('AFII') == -1 and name.find('FS') == -1:
-	  ERROR('The input file must contain the simulation description, AFII or FS')
-	sim = 'AFII' if name.find('AFII') != -1 else 'FS'
+          WARNING('The input file should contain the simulation description, AFII or '+ 
+             ' FS, if the sample was simulated.')
+        if name.find('AFII') != -1: sim = 'AFII'
+        if name.find('FS') != -1:   sim = 'FS'
+        else: sim = ''
 
 	if name.find('tag') != -1:
 	  tag = name.split('tag_')[1].split('_')[0]

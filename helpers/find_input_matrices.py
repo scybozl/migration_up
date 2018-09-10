@@ -80,7 +80,7 @@ def find_part_hists( inputfolder ):
 	print """
 
     *********************************************************************************
-    *   Directories containing migration matrices                                   *
+    *   Directories containing particle-level histograms                            *
     *********************************************************************************
     *    * DSID     * MTOP [GeV]        * SIM    *  TAG                             *
     *********************************************************************************
@@ -160,10 +160,10 @@ def check_nomenclature( directory ):
         ## Simulation
 
         if directory.find('AFII') == -1 and directory.find('FS') == -1:
-	    WARNING('The directory ' + directory + ' does not explicitly contain the simulation description. \
-		    Be sure to check your bookkeeping.')
+#	    WARNING('The directory ' + directory + ' does not explicitly contain the simulation description. \
+#		    Be sure to check your bookkeeping.')
             sim = ''
-	    correct = False
+	    correct = True
         else: sim = 'AFII' if directory.find('AFII') != -1 else 'FS'
 
         if directory.find('tag') != -1:
