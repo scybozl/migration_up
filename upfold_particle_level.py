@@ -72,6 +72,7 @@ if __name__ == '__main__':
 
     ## Loop through all observables listed in migration matrix
     ## TODO: just plotting, should also save files for easier handling later
+    reco_folded_file = TFile.Open( part.split('part')[0] + 'reco_level.root', 'NEW')
 
     for i in migr_file.GetListOfKeys():
 
@@ -132,6 +133,14 @@ if __name__ == '__main__':
     	    reco_folded[i].SetBinContent( xbins, sum )
     	    reco_folded[i].SetBinError( xbins, sqrt(error2) )
 
+        ## Save histograms
+
+        reco_folded[i].SetDirectory( reco_folded_file )
+	reco_folded[i].SetName( 'tReco_' + Aij.GetName().split('tMatrix_')[1] )
+        reco_folded[i].Write()
+        reco_folded[i].SetDirectory(0)
+
+
 	## Normalize them to unity
 	## TODO: more flexible normalization, normalize to cross-section
 
@@ -145,4 +154,7 @@ if __name__ == '__main__':
 	    reco_histograms[i].Scale(norm/norm_2)
 
 	if draw: ratioPlotATLAS( reco_folded[i], reco_histograms[i], output_directory + '/' + Aij.GetName().split('tMatrix_')[1],
-			legHist1="Folded 1", legHist2="Truth 2", particleLevel=0 )
+			legHist1="", legHist2="", particleLevel=0 )
+        
+    reco_folded_file.Close()
+
